@@ -11,7 +11,7 @@ public class Brand implements Serializable {
     private Integer id;
     private String name;
     private String image;
-    private int seq;
+    private Integer seq;
 
     public Integer getId() {
         return id;
@@ -37,11 +37,11 @@ public class Brand implements Serializable {
         this.image = image;
     }
 
-    public int getSeq() {
+    public Integer getSeq() {
         return seq;
     }
 
-    public void setSeq(int seq) {
+    public void setSeq(Integer seq) {
         this.seq = seq;
     }
 
