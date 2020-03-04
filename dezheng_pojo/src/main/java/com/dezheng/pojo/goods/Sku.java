@@ -16,7 +16,7 @@ public class Sku implements Serializable {
     private Date createTime;
     private Date updateTime;
     private String spuId;
-    private String category3Id;
+    private Integer category3Id;
     private String category3Name;
     private String brandName;
     private String spec;
@@ -91,11 +91,11 @@ public class Sku implements Serializable {
         this.spuId = spuId;
     }
 
-    public String getCategory3Id() {
+    public Integer getCategory3Id() {
         return category3Id;
     }
 
-    public void setCategory3Id(String category3Id) {
+    public void setCategory3Id(Integer category3Id) {
         this.category3Id = category3Id;
     }
 

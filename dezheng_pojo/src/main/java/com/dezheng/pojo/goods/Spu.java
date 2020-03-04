@@ -11,7 +11,7 @@ public class Spu implements Serializable {
     private String id;
     private String sn;
     private String name;
-    private String brandId;
+    private Integer brandId;
     private Integer category1Id;
     private Integer category2Id;
     private Integer category3Id;
@@ -45,11 +45,11 @@ public class Spu implements Serializable {
         this.name = name;
     }
 
-    public String getBrandId() {
+    public Integer getBrandId() {
         return brandId;
     }
 
-    public void setBrandId(String brandId) {
+    public void setBrandId(Integer brandId) {
         this.brandId = brandId;
     }
 

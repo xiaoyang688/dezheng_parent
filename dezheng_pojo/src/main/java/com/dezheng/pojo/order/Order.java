@@ -12,7 +12,7 @@ public class Order implements Serializable {
     private String id;
     private Integer totalNum;
     private Integer totalMoney;
-    private Integer perMoney;
+    private Integer preMoney;
     private Integer postFee;
     private Date createTime;
     private Date updateTime;
@@ -25,8 +25,8 @@ public class Order implements Serializable {
     private String consignee;
     private String consigneePhone;
     private String consigneeAddress;
-    private String logisticId;
-    private String logisticName;
+    private String logisticsId;
+    private String logisticsName;
     private String transactionId;
     private String orderStatus;
     private String payStatus;
@@ -58,11 +58,11 @@ public class Order implements Serializable {
     }
 
     public Integer getPerMoney() {
-        return perMoney;
+        return preMoney;
     }
 
     public void setPerMoney(Integer perMoney) {
-        this.perMoney = perMoney;
+        this.preMoney = perMoney;
     }
 
     public Integer getPostFee() {
@@ -162,19 +162,19 @@ public class Order implements Serializable {
     }
 
     public String getLogisticId() {
-        return logisticId;
+        return logisticsId;
     }
 
     public void setLogisticId(String logisticId) {
-        this.logisticId = logisticId;
+        this.logisticsId = logisticId;
     }
 
     public String getLogisticName() {
-        return logisticName;
+        return logisticsName;
     }
 
     public void setLogisticName(String logisticName) {
-        this.logisticName = logisticName;
+        this.logisticsName = logisticName;
     }
 
     public String getTransactionId() {
@@ -223,7 +223,7 @@ public class Order implements Serializable {
                 "id='" + id + '\'' +
                 ", totalNum=" + totalNum +
                 ", totalMoney=" + totalMoney +
-                ", perMoney=" + perMoney +
+                ", perMoney=" + preMoney +
                 ", postFee=" + postFee +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
@@ -236,8 +236,8 @@ public class Order implements Serializable {
                 ", consignee='" + consignee + '\'' +
                 ", consigneePhone='" + consigneePhone + '\'' +
                 ", consigneeAddress='" + consigneeAddress + '\'' +
-                ", logisticId='" + logisticId + '\'' +
-                ", logisticName='" + logisticName + '\'' +
+                ", logisticId='" + logisticsId + '\'' +
+                ", logisticName='" + logisticsName + '\'' +
                 ", transactionId='" + transactionId + '\'' +
                 ", orderStatus='" + orderStatus + '\'' +
                 ", payStatus='" + payStatus + '\'' +
