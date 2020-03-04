@@ -10,7 +10,6 @@ public class Album implements Serializable {
     @Id
     private Integer id;
     private String title;
-    private String brand;
     private String image;
     private String imageItems;
 
@@ -30,14 +29,6 @@ public class Album implements Serializable {
         this.title = title;
     }
 
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
     public String getImage() {
         return image;
     }
@@ -54,12 +45,12 @@ public class Album implements Serializable {
         this.imageItems = imageItems;
     }
 
+
     @Override
     public String toString() {
         return "Album{" +
                 "id=" + id +
                 ", title='" + title + '\'' +
-                ", brand='" + brand + '\'' +
                 ", image='" + image + '\'' +
                 ", imageItems='" + imageItems + '\'' +
                 '}';
