@@ -16,10 +16,19 @@ public class Spu implements Serializable {
     private Integer category2Id;
     private Integer category3Id;
     private String introduction;
+    private String details;
     private String specItems;
     private String isMarketable;
     private String isDelete;
     private String status;
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(String details) {
+        this.details = details;
+    }
 
     public String getId() {
         return id;
@@ -123,11 +132,12 @@ public class Spu implements Serializable {
                 "id='" + id + '\'' +
                 ", sn='" + sn + '\'' +
                 ", name='" + name + '\'' +
-                ", brandId='" + brandId + '\'' +
+                ", brandId=" + brandId +
                 ", category1Id=" + category1Id +
                 ", category2Id=" + category2Id +
                 ", category3Id=" + category3Id +
                 ", introduction='" + introduction + '\'' +
+                ", details='" + details + '\'' +
                 ", specItems='" + specItems + '\'' +
                 ", isMarketable='" + isMarketable + '\'' +
                 ", isDelete='" + isDelete + '\'' +

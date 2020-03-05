@@ -1,17 +1,17 @@
 package com.dezheng.service.impl;
 
+import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.alibaba.fastjson.JSONArray;
 import com.dezheng.dao.AdMapper;
 import com.dezheng.pojo.business.Ad;
-import com.dezheng.service.business.AdService;
+import com.dezheng.service.redis.AdServiceToRedis;
 import org.springframework.beans.factory.annotation.Autowired;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 
 @Service
-public class AdServiceIml implements AdService {
+public class AdServiceImpl implements com.dezheng.service.business.AdService {
 
     @Autowired
     private AdMapper adMapper;
@@ -35,5 +35,14 @@ public class AdServiceIml implements AdService {
         }
         return map;
 
+    }
+
+    @Reference
+    private AdServiceToRedis redisTest;
+
+    @Override
+    public void testRedis() {
+        String s = redisTest.redisTest();
+        System.out.println(s);
     }
 }

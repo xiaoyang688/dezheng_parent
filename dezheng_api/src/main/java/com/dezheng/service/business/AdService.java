@@ -9,4 +9,9 @@ public interface AdService {
      * @return
      */
     Map findByPosition(String position);
+
+    /**
+     * 测试缓存
+     */
+    public void testRedis();
 }
