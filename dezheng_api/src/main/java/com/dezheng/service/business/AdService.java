@@ -10,8 +10,7 @@ public interface AdService {
      */
     Map findByPosition(String position);
 
-    /**
-     * 测试缓存
-     */
-    public void testRedis();
+
+    public void saveAdByPositionToRedis();
+
 }

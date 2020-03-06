@@ -21,10 +21,4 @@ public class IndexController {
         return adService.findByPosition(position);
     }
 
-    @GetMapping("/test")
-    public Result redisTest(){
-        adService.testRedis();
-        return new Result();
-    }
-
 }
