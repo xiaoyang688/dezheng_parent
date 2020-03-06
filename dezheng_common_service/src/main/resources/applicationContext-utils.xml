@@ -10,4 +10,9 @@
         <constructor-arg index="1" value="1"></constructor-arg>
     </bean>
 
+    <bean id="restHighLevelClient" class="com.dezheng.elasticsearch.RestClientFactory" factory-method="getRestHighLevelClient">
+        <constructor-arg name="hostname" value="${elasticseach.host}"></constructor-arg>
+        <constructor-arg name="port" value="${elasticseach.port}"></constructor-arg>
+    </bean>
+
 </beans>
