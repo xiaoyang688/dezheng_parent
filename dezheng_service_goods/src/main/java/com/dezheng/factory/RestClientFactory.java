@@ -1,4 +1,4 @@
-package com.dezheng.elasticsearch;
+package com.dezheng.factory;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RestClientBuilder;

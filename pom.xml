@@ -18,7 +18,7 @@
         <module>dezheng_web_manager</module>
         <module>dezheng_web_front</module>
         <module>dezheng_service_business</module>
-        <module>dezheng_index</module>
+        <module>dezheng_service_user</module>
     </modules>
 
     <packaging>pom</packaging>

@@ -14,7 +14,6 @@ public class Spu implements Serializable {
     private Integer brandId;
     private Integer category1Id;
     private Integer category2Id;
-    private Integer category3Id;
     private String introduction;
     private String details;
     private String specItems;
@@ -78,14 +77,6 @@ public class Spu implements Serializable {
         this.category2Id = category2Id;
     }
 
-    public Integer getCategory3Id() {
-        return category3Id;
-    }
-
-    public void setCategory3Id(Integer category3Id) {
-        this.category3Id = category3Id;
-    }
-
     public String getIntroduction() {
         return introduction;
     }
@@ -126,22 +117,4 @@ public class Spu implements Serializable {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Spu{" +
-                "id='" + id + '\'' +
-                ", sn='" + sn + '\'' +
-                ", name='" + name + '\'' +
-                ", brandId=" + brandId +
-                ", category1Id=" + category1Id +
-                ", category2Id=" + category2Id +
-                ", category3Id=" + category3Id +
-                ", introduction='" + introduction + '\'' +
-                ", details='" + details + '\'' +
-                ", specItems='" + specItems + '\'' +
-                ", isMarketable='" + isMarketable + '\'' +
-                ", isDelete='" + isDelete + '\'' +
-                ", status='" + status + '\'' +
-                '}';
-    }
 }

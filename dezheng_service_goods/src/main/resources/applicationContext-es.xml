@@ -5,9 +5,12 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="idWorker" class="com.dezheng.utils.IdWorker">
-        <constructor-arg index="0" value="1"></constructor-arg>
-        <constructor-arg index="1" value="1"></constructor-arg>
+
+    <bean id="restHighLevelClient" class="com.dezheng.factory.RestClientFactory" factory-method="getRestHighLevelClient">
+
+        <constructor-arg name="hostname" value="192.168.123.192"></constructor-arg>
+        <constructor-arg name="port" value="9200"></constructor-arg>
+
     </bean>
 
 </beans>

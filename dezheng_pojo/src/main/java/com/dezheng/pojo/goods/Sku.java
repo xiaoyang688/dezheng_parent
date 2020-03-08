@@ -13,11 +13,12 @@ public class Sku implements Serializable {
     private String name;
     private String image;
     private String imageItems;
+    private String businessMode;
     private Date createTime;
     private Date updateTime;
     private String spuId;
-    private Integer category3Id;
-    private String category3Name;
+    private Integer category2Id;
+    private String category2Name;
     private String brandName;
     private String spec;
     private Integer price;
@@ -26,6 +27,15 @@ public class Sku implements Serializable {
     private Integer saleNum;
     private Integer commentNum;
     private String status;
+
+
+    public String getBusinessMode() {
+        return businessMode;
+    }
+
+    public void setBusinessMode(String businessMode) {
+        this.businessMode = businessMode;
+    }
 
     public String getId() {
         return id;
@@ -91,20 +101,20 @@ public class Sku implements Serializable {
         this.spuId = spuId;
     }
 
-    public Integer getCategory3Id() {
-        return category3Id;
+    public Integer getCategory2Id() {
+        return category2Id;
     }
 
-    public void setCategory3Id(Integer category3Id) {
-        this.category3Id = category3Id;
+    public void setCategory2Id(Integer category3Id) {
+        this.category2Id = category3Id;
     }
 
-    public String getCategory3Name() {
-        return category3Name;
+    public String getCategory2Name() {
+        return category2Name;
     }
 
-    public void setCategory3Name(String category3Name) {
-        this.category3Name = category3Name;
+    public void setCategory2Name(String category3Name) {
+        this.category2Name = category3Name;
     }
 
     public String getBrandName() {
@@ -171,27 +181,4 @@ public class Sku implements Serializable {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Sku{" +
-                "id='" + id + '\'' +
-                ", sn='" + sn + '\'' +
-                ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
-                ", imageItems='" + imageItems + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", spuId='" + spuId + '\'' +
-                ", category3Id='" + category3Id + '\'' +
-                ", category3Name='" + category3Name + '\'' +
-                ", brandName='" + brandName + '\'' +
-                ", spec='" + spec + '\'' +
-                ", price=" + price +
-                ", num=" + num +
-                ", alertNum=" + alertNum +
-                ", saleNum=" + saleNum +
-                ", commentNum=" + commentNum +
-                ", status='" + status + '\'' +
-                '}';
-    }
 }

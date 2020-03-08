@@ -11,4 +11,6 @@ public interface SkuService {
      */
     public Map findSkuById(String id);
 
+    public void saveAllSkuItemToRedis();
+
 }

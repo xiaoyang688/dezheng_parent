@@ -26,13 +26,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<Map> findAllCategory() {
         List<Map> categoryTree = (List<Map>) redisTemplate.boundHashOps(CacheKey.CategoryTree).get("categoryTree");
-        if (categoryTree == null){
+        if (categoryTree == null) {
             saveCategoryTreeToRedis();
         }
         return categoryTree;
     }
 
-    public void saveCategoryTreeToRedis(){
+    public void saveCategoryTreeToRedis() {
 
         Example example = new Example(Category.class);
         example.createCriteria()
@@ -48,7 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
 
-    private List<Map> findCategoryByParent(List<Category> categoryList, Integer parentId){
+    private List<Map> findCategoryByParent(List<Category> categoryList, Integer parentId) {
 
         List<Map> categoryTree = new ArrayList<>();
         for (Category category : categoryList) {
@@ -56,7 +56,10 @@ public class CategoryServiceImpl implements CategoryService {
                 Map map = new HashMap<>();
                 map.put("id", category.getId());
                 map.put("name", category.getName());
-                map.put("menu", findCategoryByParent(categoryList, category.getId()));
+                List<Map> menu = findCategoryByParent(categoryList, category.getId());
+                if (menu.size() > 0) {
+                    map.put("menu", menu);
+                }
                 categoryTree.add(map);
             }
         }
