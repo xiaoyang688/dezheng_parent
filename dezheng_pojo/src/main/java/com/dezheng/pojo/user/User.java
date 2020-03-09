@@ -2,10 +2,11 @@ package com.dezheng.pojo.user;
 
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.util.Date;
 
 @Table(name = "tb_user")
-public class User {
+public class User implements Serializable {
 
     @Id
     private String username;
@@ -22,6 +23,15 @@ public class User {
     private String isEmailCheck;
     private String status;
     private Date lastLoginTime;
+    private String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public String getUsername() {
         return username;
