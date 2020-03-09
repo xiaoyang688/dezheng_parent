@@ -19,6 +19,7 @@
         <module>dezheng_web_front</module>
         <module>dezheng_service_business</module>
         <module>dezheng_service_user</module>
+        <module>dezheng_service_sms</module>
     </modules>
 
     <packaging>pom</packaging>

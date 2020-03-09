@@ -27,7 +27,6 @@ public class SkuServiceImpl implements SkuService {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @Override
     public Map findSkuById(String id) {
 
         Map item = (Map) redisTemplate.boundHashOps(CacheKey.SkuItem).get(id);
@@ -35,7 +34,6 @@ public class SkuServiceImpl implements SkuService {
         return item;
     }
 
-    @Override
     public void saveAllSkuItemToRedis() {
         List<Sku> skuList = skuMapper.selectAll();
         for (Sku sku : skuList) {
