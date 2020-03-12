@@ -7,27 +7,40 @@ import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    @Reference
-    private UserService userService;
-
-    @GetMapping("/sendSms")
-    public Result sendSms(@RequestParam("phone") String phone) {
-        userService.sendSms(phone);
-        return new Result(1, "发送验证码成功！");
+    @GetMapping("/login")
+    public Result login(HttpServletRequest request, HttpServletResponse response, String username, String password){
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            System.out.println(cookie.getValue());
+        }
+        String token = UUID.randomUUID().toString();
+        response.addCookie(new Cookie("token", token));
+        return new Result();
     }
 
-    @PostMapping("/register")
-    public Result register(@RequestBody User user){
-        String password = user.getPassword();
-        String gensalt = BCrypt.gensalt();
-        String hashpw = BCrypt.hashpw(password, gensalt);
-        user.setPassword(hashpw);
-        userService.register(user, user.getCode());
-        return new Result(1,"注册成功！");
+    @GetMapping("/test")
+    public Map test(HttpServletRequest request){
+        Map result = new HashMap();
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("token")) {
+                result.put("result","登录成功");
+                return result;
+            }
+        }
+        result.put("result","登录失败");
+        return result;
     }
 
 }

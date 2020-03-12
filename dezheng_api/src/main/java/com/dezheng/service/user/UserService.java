@@ -17,4 +17,6 @@ public interface UserService {
      */
     public void register(User user, String code);
 
+    public boolean checkUser(User user);
+
 }

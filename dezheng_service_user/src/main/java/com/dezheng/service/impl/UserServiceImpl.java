@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.dezheng.dao.UserMapper;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
+import com.dezheng.utils.BCrypt;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -95,5 +96,19 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException("验证码错误");
             }
         }
+    }
+
+    @Override
+    public boolean checkUser(User user) {
+
+        User searchUser = userMapper.selectByPrimaryKey(user.getUsername());
+        if (searchUser == null) {
+            throw new RuntimeException("用户未注册");
+        }
+        //检验密码
+        if (BCrypt.checkpw(user.getPassword(), searchUser.getPassword())) {
+            return true;
+        }
+        return false;
     }
 }
