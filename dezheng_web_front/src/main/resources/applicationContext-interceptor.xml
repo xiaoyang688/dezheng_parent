@@ -15,7 +15,8 @@
         <!--        拦截器1-->
         <mvc:interceptor>
             <mvc:mapping path="/user/*.do"/>
-            <!--            拦截器bean-->
+            <mvc:mapping path="/cart/*.do"/>
+            <!--拦截器bean-->
             <bean class="com.dezheng.interceptor.LoginInterceptor"/>
         </mvc:interceptor>
     </mvc:interceptors>

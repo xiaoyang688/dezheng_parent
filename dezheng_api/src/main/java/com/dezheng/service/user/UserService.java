@@ -2,6 +2,7 @@ package com.dezheng.service.user;
 
 import com.dezheng.pojo.user.User;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 public interface UserService {
@@ -31,5 +32,11 @@ public interface UserService {
      * @return
      */
     public Map getUserInfo(String username);
+
+    /**
+     * 获取用户名
+     * @return
+     */
+    public String getUserName(String token);
 
 }

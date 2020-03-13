@@ -1,4 +1,4 @@
-package com.dezheng.service.impl;
+package com.dezheng.service.impl.order;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.dezheng.dao.OrderItemMapper;

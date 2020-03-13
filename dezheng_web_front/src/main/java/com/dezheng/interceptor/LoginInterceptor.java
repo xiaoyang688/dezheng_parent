@@ -17,14 +17,10 @@ public class LoginInterceptor implements HandlerInterceptor {
         System.out.println("开始拦截！！");
 
         String authorization = request.getHeader("Authorization");
-        String[] s = authorization.split(" ");
-        String s1 = s[1];
-        String o = (String) redisTemplate.boundValueOps(s1).get();
-        if (s1.equals(o)) {
-            throw new RuntimeException("用户未登录");
+        //检验token
+        if (authorization == null) {
+            throw new RuntimeException("用户未登陆");
         }
-        System.out.println(o);
-        System.out.println(s1);
         return true;
     }
 
