@@ -10,10 +10,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -108,7 +105,36 @@ public class UserServiceImpl implements UserService {
         //检验密码
         if (BCrypt.checkpw(user.getPassword(), searchUser.getPassword())) {
             return true;
+        } else {
+            throw new RuntimeException("密码错误");
         }
-        return false;
     }
+
+    @Override
+    public Map getUserInfo(String username) {
+
+        //生成token
+        String token = UUID.randomUUID().toString();
+
+        //保存token对应的username
+        try {
+            redisTemplate.boundValueOps(token).set(username);
+        } catch (Exception e) {
+            throw new RuntimeException("用户名存入redis失败");
+        }
+
+        //查询用户信息
+        User user = userMapper.selectByPrimaryKey(username);
+
+        //封装用户信息
+        Map result = new HashMap();
+
+        result.put("username", user.getUsername());
+        result.put("haedPic", user.getHeadPic());
+        result.put("token", token);
+
+        return result;
+
+    }
+
 }

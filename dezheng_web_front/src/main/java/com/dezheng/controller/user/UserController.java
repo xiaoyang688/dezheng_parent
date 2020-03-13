@@ -32,14 +32,8 @@ public class UserController {
     @GetMapping("/test")
     public Map test(HttpServletRequest request){
         Map result = new HashMap();
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("token")) {
-                result.put("result","登录成功");
-                return result;
-            }
-        }
-        result.put("result","登录失败");
+        String authorization = request.getHeader("Authorization");
+
         return result;
     }
 

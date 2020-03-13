@@ -20,7 +20,6 @@
         <module>dezheng_service_business</module>
         <module>dezheng_service_user</module>
         <module>dezheng_service_sms</module>
-        <module>dezheng_common_cas</module>
     </modules>
 
     <packaging>pom</packaging>

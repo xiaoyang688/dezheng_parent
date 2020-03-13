@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -40,20 +42,14 @@ public class LoginController {
     }
 
     @PostMapping("/signIn")
-    private Result signIn(@RequestBody User user, HttpServletResponse response) {
+    private Map signIn(@RequestBody User user) {
 
+        Map map = new HashMap();
         //检验用户
         if (userService.checkUser(user)) { //校验成功
-            String token = UUID.randomUUID().toString();
-            try {
-                redisTemplate.boundValueOps(token).set(user.getUsername());
-                response.addCookie(new Cookie("token", token));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return new Result(1, "登录成功");
+            return userService.getUserInfo(user.getUsername());
         } else {
-            return new Result(1, "登录失败");
+            return map;
         }
     }
 }

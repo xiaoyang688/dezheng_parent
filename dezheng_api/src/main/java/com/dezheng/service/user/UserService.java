@@ -2,6 +2,8 @@ package com.dezheng.service.user;
 
 import com.dezheng.pojo.user.User;
 
+import java.util.Map;
+
 public interface UserService {
 
     /**
@@ -17,6 +19,17 @@ public interface UserService {
      */
     public void register(User user, String code);
 
+    /**
+     * 校验密码
+     * @param user
+     * @return
+     */
     public boolean checkUser(User user);
+
+    /**
+     * 获取用户信息
+     * @return
+     */
+    public Map getUserInfo(String username);
 
 }
