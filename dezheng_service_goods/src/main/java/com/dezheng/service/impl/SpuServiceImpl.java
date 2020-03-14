@@ -49,7 +49,7 @@ public class SpuServiceImpl implements SpuService {
         Brand brand = brandMapper.selectByPrimaryKey(spu.getBrandId());
         spu.setName( brand.getName() + " " + spu.getName());
         spu.setIsMarketable("0");
-        spu.setIsDelete("1");
+        spu.setIsDelete("0");
         spu.setStatus("0");
         spuMapper.insert(spu);
 
@@ -89,7 +89,7 @@ public class SpuServiceImpl implements SpuService {
 
             sku.setSaleNum(0);
             sku.setCommentNum(0);
-            sku.setStatus("0");
+            sku.setStatus("1");
 
             skuMapper.insertSelective(sku);
         }

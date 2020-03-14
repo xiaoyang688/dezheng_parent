@@ -44,11 +44,17 @@ public class SkuServiceImpl implements SkuService {
             //商品名称
             String name = sku.getName();
 
+            //获取分类id
+            Integer category2Id = sku.getCategory2Id();
+
             //获取价格
             Integer price = sku.getPrice();
 
             //获取销量
             Integer saleNum = sku.getSaleNum();
+
+            //获取封面图片
+            String image = sku.getImage();
 
             //获取图片
             String[] imageItems = sku.getImageItems().split(",");
@@ -73,12 +79,13 @@ public class SkuServiceImpl implements SkuService {
             item.put("saleNum", saleNum);
             item.put("introduction", introduction);
             item.put("spec", spec);
+            item.put("category2Id", category2Id);
+            item.put("image", image);
             item.put("imageItems", imageItems);
             item.put("details", details);
             item.put("commentNum", commentNum);
 
             redisTemplate.boundHashOps(CacheKey.SkuItem).put(sku.getId(), item);
-
         }
     }
 }

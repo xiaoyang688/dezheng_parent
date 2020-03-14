@@ -7,10 +7,7 @@ import java.io.Serializable;
 public class OrderItem implements Serializable {
 
     private String id;
-    private Integer category1Id;
     private Integer category2Id;
-    private Integer category3Id;
-    private String spuId;
     private String skuId;
     private String orderId;
     private String name;//商品名称
@@ -18,7 +15,6 @@ public class OrderItem implements Serializable {
     private Integer price;
     private Integer num;
     private Integer payMoney;
-    private Integer postFee;
     private Integer isReturn;
 
     public String getId() {
@@ -29,36 +25,12 @@ public class OrderItem implements Serializable {
         this.id = id;
     }
 
-    public Integer getCategory1Id() {
-        return category1Id;
-    }
-
-    public void setCategory1Id(Integer category1Id) {
-        this.category1Id = category1Id;
-    }
-
     public Integer getCategory2Id() {
         return category2Id;
     }
 
     public void setCategory2Id(Integer category2Id) {
         this.category2Id = category2Id;
-    }
-
-    public Integer getCategory3Id() {
-        return category3Id;
-    }
-
-    public void setCategory3Id(Integer category3Id) {
-        this.category3Id = category3Id;
-    }
-
-    public String getSpuId() {
-        return spuId;
-    }
-
-    public void setSpuId(String spuId) {
-        this.spuId = spuId;
     }
 
     public String getSkuId() {
@@ -117,14 +89,6 @@ public class OrderItem implements Serializable {
         this.payMoney = payMoney;
     }
 
-    public Integer getPostFee() {
-        return postFee;
-    }
-
-    public void setPostFee(Integer postFee) {
-        this.postFee = postFee;
-    }
-
     public Integer getIsReturn() {
         return isReturn;
     }
@@ -137,10 +101,7 @@ public class OrderItem implements Serializable {
     public String toString() {
         return "OrderItem{" +
                 "id='" + id + '\'' +
-                ", category1Id=" + category1Id +
                 ", category2Id=" + category2Id +
-                ", category3Id=" + category3Id +
-                ", spuId='" + spuId + '\'' +
                 ", skuId='" + skuId + '\'' +
                 ", orderId='" + orderId + '\'' +
                 ", name='" + name + '\'' +
@@ -148,7 +109,6 @@ public class OrderItem implements Serializable {
                 ", price=" + price +
                 ", num=" + num +
                 ", payMoney=" + payMoney +
-                ", postFee=" + postFee +
                 ", isReturn=" + isReturn +
                 '}';
     }
