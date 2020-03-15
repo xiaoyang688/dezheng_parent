@@ -2,7 +2,9 @@ package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.dezheng.dao.AddressMapper;
 import com.dezheng.dao.UserMapper;
+import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
@@ -19,6 +21,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private AddressMapper addressMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -132,5 +137,15 @@ public class UserServiceImpl implements UserService {
         System.out.println(token);
         token = token.replace("Bearer ", "");
         return JWTUtils.vaildToken(token);
+    }
+
+    @Override
+    public List<Address> findAddressByUsername(String username) {
+
+        Address address = new Address();
+        address.setUsername(username);
+        List<Address> addressList = addressMapper.select(address);
+        System.out.println(addressList);
+        return addressList;
     }
 }

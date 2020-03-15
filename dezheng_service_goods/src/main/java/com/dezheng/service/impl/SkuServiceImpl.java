@@ -27,11 +27,17 @@ public class SkuServiceImpl implements SkuService {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public Map findSkuById(String id) {
+    public Map findSkuByIdAtRedis(String id) {
 
         Map item = (Map) redisTemplate.boundHashOps(CacheKey.SkuItem).get(id);
 
         return item;
+    }
+
+    @Override
+    public Sku findSkuById(String id) {
+        Sku sku = skuMapper.selectByPrimaryKey(id);
+        return sku;
     }
 
     public void saveAllSkuItemToRedis() {

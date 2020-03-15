@@ -1,8 +1,10 @@
 package com.dezheng.service.user;
 
+import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -38,5 +40,12 @@ public interface UserService {
      * @return
      */
     public String getUserName(String token);
+
+    /**
+     * 通过用户名获取地址
+     * @param username
+     * @return
+     */
+    public List<Address> findAddressByUsername(String username);
 
 }

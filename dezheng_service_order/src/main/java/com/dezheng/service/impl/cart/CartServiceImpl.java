@@ -2,6 +2,7 @@ package com.dezheng.service.impl.cart;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.dezheng.pojo.goods.Sku;
 import com.dezheng.pojo.order.OrderItem;
 import com.dezheng.redis.CacheKey;
 import com.dezheng.service.cart.CartService;
@@ -38,10 +39,23 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    public List<Map<String, Object>> findNewCartList(String username) {
+        List<Map<String, Object>> cartList = findCartList(username);
+        for (Map<String, Object> cart : cartList) {
+            OrderItem orderItem = (OrderItem) cart.get("orderItem");
+            Sku sku = skuService.findSkuById(orderItem.getSkuId());
+            orderItem.setPrice(sku.getPrice());
+            orderItem.setPayMoney(orderItem.getPrice() * orderItem.getNum());
+        }
+        redisTemplate.boundHashOps(CacheKey.CartList).put(username, cartList);
+        return cartList;
+    }
+
+    @Override
     public void addCart(String username, String skuId, Integer num) {
 
         //获取sku商品信息
-        Map skuMap = skuService.findSkuById(skuId);
+        Map skuMap = skuService.findSkuByIdAtRedis(skuId);
 
         if (skuMap == null) {
             throw new RuntimeException("商品不存在");
@@ -101,5 +115,27 @@ public class CartServiceImpl implements CartService {
         }
         //重新保存到redis中
         redisTemplate.boundHashOps(CacheKey.CartList).put(username, cartList);
+    }
+
+    @Override
+    public void updateCheckout(String username, String skuId, boolean checkout) {
+        //查找购物车
+        List<Map<String, Object>> cartList = findCartList(username);
+
+        //更新购物车
+        if (cartList.size() > 0) {
+            for (Map<String, Object> cart : cartList) {
+                OrderItem orderItem = (OrderItem) cart.get("orderItem");
+                if (orderItem.getSkuId().equals(skuId)) {
+                    cart.put("checkout", checkout);
+                }
+            }
+        }
+        redisTemplate.boundHashOps(CacheKey.CartList).put(username, cartList);
+    }
+
+    @Override
+    public void buy(String username, String skuId) {
+        addCart(username, skuId, 1);
     }
 }

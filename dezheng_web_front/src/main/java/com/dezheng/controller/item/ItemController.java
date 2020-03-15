@@ -18,7 +18,7 @@ public class ItemController {
 
     @GetMapping("/sku")
     public Map skuItem(@RequestParam("id") String skuId){
-        return skuService.findSkuById(skuId);
+        return skuService.findSkuByIdAtRedis(skuId);
     }
 
 }
