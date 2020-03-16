@@ -6,15 +6,19 @@ import com.dezheng.dao.AddressMapper;
 import com.dezheng.dao.UserMapper;
 import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
+import com.dezheng.redis.CacheKey;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
+import com.dezheng.utils.IdWorker;
 import com.dezheng.utils.JWTUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -30,6 +34,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private IdWorker idWorker;
 
     public void sendSms(String phone) {
 
@@ -139,13 +146,73 @@ public class UserServiceImpl implements UserService {
         return JWTUtils.vaildToken(token);
     }
 
-    @Override
-    public List<Address> findAddressByUsername(String username) {
-
-        Address address = new Address();
-        address.setUsername(username);
-        List<Address> addressList = addressMapper.select(address);
-        System.out.println(addressList);
+    public List<Address> findAddressList(String username) {
+        Example example = new Example(Address.class);
+        example.createCriteria()
+                .andEqualTo("username", username);
+        List<Address> addressList = addressMapper.selectByExample(example);
         return addressList;
+    }
+
+    @Override
+    public void addAddress(Address address) {
+        //查找地址
+        List<Address> addressList = findAddressList(address.getUsername());
+
+        address.setIsDefault("0");
+        if (addressList.size() == 0) {
+            address.setIsDefault("1");
+        }
+        address.setId(idWorker.nextId() + "");
+        addressMapper.insertSelective(address);
+    }
+
+    public void updateDefAddress(String username, String id) {
+
+        List<Address> addressList = findAddressList(username);
+        List<Address> addr = addressList.stream().filter(address -> address.getIsDefault().equals("1")).collect(Collectors.toList());
+        //没有设置默认地址
+        if (addr == null) {
+            addr = new ArrayList<>();
+        }
+
+        if (addr.size() == 1) {
+            Address defaultAddress = addr.get(0);
+            //将原来的默认地址改为不默认
+            if (defaultAddress.getId().equals(id)) {
+                throw new RuntimeException("已经是默认地址");
+            }
+            defaultAddress.setIsDefault("0");
+            addressMapper.updateByPrimaryKey(defaultAddress);
+        }
+
+        //改为默认地址
+        Address modifyAddress = addressMapper.selectByPrimaryKey(id);
+        modifyAddress.setIsDefault("1");
+        addressMapper.updateByPrimaryKey(modifyAddress);
+    }
+
+    @Override
+    public void updateAddress(Address address) {
+        int i = addressMapper.updateByPrimaryKey(address);
+        if (i < 1) {
+            throw new RuntimeException("修改失败");
+        }
+    }
+
+    @Override
+    public Address findAddressById(String id) {
+        Address address = addressMapper.selectByPrimaryKey(id);
+        if (address == null) {
+            throw new RuntimeException("地址不存在");
+        }
+        return address;
+    }
+
+    public void deleteAddress(String id) {
+        int i = addressMapper.deleteByPrimaryKey(id);
+        if (i < 1) {
+            throw new RuntimeException("地址已删除");
+        }
     }
 }

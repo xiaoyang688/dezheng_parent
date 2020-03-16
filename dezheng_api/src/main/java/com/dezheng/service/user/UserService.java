@@ -41,11 +41,39 @@ public interface UserService {
      */
     public String getUserName(String token);
 
+    public List<Address> findAddressList(String username);
+
     /**
-     * 通过用户名获取地址
+     * 添加地址
+     * @param address
+     */
+    public void addAddress(Address address);
+
+    /**
+     * 更新默认地址￿
      * @param username
+     * @param id
+     */
+    public void updateDefAddress(String username, String id);
+
+    /**
+     * 更新地址
+     * @param address
+     */
+    public void updateAddress(Address address);
+
+    /**
+     * 通过id查找地址
+     * @param id
      * @return
      */
-    public List<Address> findAddressByUsername(String username);
+    public Address findAddressById(String id);
+
+    /**
+     * 删除地址
+     * @param id
+     * @param id
+     */
+    public void deleteAddress(String id);
 
 }

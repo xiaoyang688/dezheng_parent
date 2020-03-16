@@ -4,5 +4,6 @@ public enum CacheKey {
     AD,
     CategoryTree,
     SkuItem,
-    CartList
+    CartList,
+    AddressList
 }

@@ -8,18 +8,18 @@ import java.io.Serializable;
 public class Address implements Serializable {
 
     @Id
-    private Integer id;
+    private String id;
     private String username;
     private String contact;
     private String phone;
     private String address;
     private String isDefault;
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -61,5 +61,17 @@ public class Address implements Serializable {
 
     public void setIsDefault(String isDefault) {
         this.isDefault = isDefault;
+    }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", contact='" + contact + '\'' +
+                ", phone='" + phone + '\'' +
+                ", address='" + address + '\'' +
+                ", isDefault='" + isDefault + '\'' +
+                '}';
     }
 }
