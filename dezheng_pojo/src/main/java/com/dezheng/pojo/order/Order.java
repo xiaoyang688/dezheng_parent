@@ -12,8 +12,8 @@ public class Order implements Serializable {
     private String id;
     private Integer totalNum;
     private Integer totalMoney;
+    private Integer payMoney;
     private Integer preMoney;
-    private Integer postFee;
     private Date createTime;
     private Date updateTime;
     private Date payTime;
@@ -32,6 +32,38 @@ public class Order implements Serializable {
     private String payStatus;
     private String consignStatus;
     private String isDelete;
+
+    public Integer getPayMoney() {
+        return payMoney;
+    }
+
+    public void setPayMoney(Integer payMoney) {
+        this.payMoney = payMoney;
+    }
+
+    public Integer getPreMoney() {
+        return preMoney;
+    }
+
+    public void setPreMoney(Integer preMoney) {
+        this.preMoney = preMoney;
+    }
+
+    public String getLogisticsId() {
+        return logisticsId;
+    }
+
+    public void setLogisticsId(String logisticsId) {
+        this.logisticsId = logisticsId;
+    }
+
+    public String getLogisticsName() {
+        return logisticsName;
+    }
+
+    public void setLogisticsName(String logisticsName) {
+        this.logisticsName = logisticsName;
+    }
 
     public String getId() {
         return id;
@@ -63,14 +95,6 @@ public class Order implements Serializable {
 
     public void setPerMoney(Integer perMoney) {
         this.preMoney = perMoney;
-    }
-
-    public Integer getPostFee() {
-        return postFee;
-    }
-
-    public void setPostFee(Integer postFee) {
-        this.postFee = postFee;
     }
 
     public Date getCreateTime() {
@@ -224,7 +248,6 @@ public class Order implements Serializable {
                 ", totalNum=" + totalNum +
                 ", totalMoney=" + totalMoney +
                 ", perMoney=" + preMoney +
-                ", postFee=" + postFee +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", payTime=" + payTime +

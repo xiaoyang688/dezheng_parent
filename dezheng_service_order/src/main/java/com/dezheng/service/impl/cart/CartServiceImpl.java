@@ -2,7 +2,9 @@ package com.dezheng.service.impl.cart;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
-import com.dezheng.pojo.goods.Sku;
+import com.dezheng.dao.OrderItemMapper;
+import com.dezheng.dao.OrderMapper;
+import com.dezheng.pojo.order.Order;
 import com.dezheng.pojo.order.OrderItem;
 import com.dezheng.redis.CacheKey;
 import com.dezheng.service.cart.CartService;
@@ -11,10 +13,9 @@ import com.dezheng.utils.IdWorker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class CartServiceImpl implements CartService {
@@ -22,6 +23,12 @@ public class CartServiceImpl implements CartService {
 
     @Reference
     private SkuService skuService;
+
+    @Autowired
+    private OrderMapper orderMapper;
+
+    @Autowired
+    private OrderItemMapper orderItemMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -38,18 +45,6 @@ public class CartServiceImpl implements CartService {
         return cartList;
     }
 
-    @Override
-    public List<Map<String, Object>> findNewCartList(String username) {
-        List<Map<String, Object>> cartList = findCartList(username);
-        for (Map<String, Object> cart : cartList) {
-            OrderItem orderItem = (OrderItem) cart.get("orderItem");
-            Sku sku = skuService.findSkuById(orderItem.getSkuId());
-            orderItem.setPrice(sku.getPrice());
-            orderItem.setPayMoney(orderItem.getPrice() * orderItem.getNum());
-        }
-        redisTemplate.boundHashOps(CacheKey.CartList).put(username, cartList);
-        return cartList;
-    }
 
     @Override
     public void addCart(String username, String skuId, Integer num) {
@@ -99,7 +94,6 @@ public class CartServiceImpl implements CartService {
 
             Map<String, Object> cartMap = new HashMap<>();
             OrderItem orderItem = new OrderItem();
-            orderItem.setId(idWorker.nextId() + "");
             orderItem.setCategory2Id(category2Id);
             orderItem.setSkuId(skuId);
             orderItem.setName(name);
@@ -108,6 +102,7 @@ public class CartServiceImpl implements CartService {
             orderItem.setPrice(price);
             orderItem.setPayMoney(price * num);
 
+            System.out.println(orderItem);
             //默认勾选
             cartMap.put("orderItem", orderItem);
             cartMap.put("checkout", true);
@@ -138,4 +133,59 @@ public class CartServiceImpl implements CartService {
     public void buy(String username, String skuId) {
         addCart(username, skuId, 1);
     }
+
+    public List<OrderItem> selectedCartList(String username) {
+        List<Map<String, Object>> cartList = findCartList(username);
+        List<OrderItem> selectedOrderItem = cartList.stream().filter(cart -> cart.get("checkout").equals(true))
+                .map(cart -> (OrderItem) cart.get("orderItem"))
+                .collect(Collectors.toList());
+        return selectedOrderItem;
+    }
+
+    @Override
+    public Map submitOrder(Order order) {
+
+        order.setId(idWorker.nextId() + "");
+
+        //获取勾选购物车
+        List<OrderItem> orderItemList = selectedCartList(order.getUsername());
+        //插入订单详细
+        for (OrderItem orderItem : orderItemList) {
+            orderItem.setOrderId(order.getId());
+            orderItem.setId(idWorker.nextId() + "");
+            orderItemMapper.insert(orderItem);
+        }
+
+        //计算总数量
+        IntStream numStream = orderItemList.stream().mapToInt(OrderItem::getNum);
+        order.setTotalNum(numStream.sum());
+
+        //计算总金额
+        IntStream payMoneyStream = orderItemList.stream().mapToInt(OrderItem::getPayMoney);
+        Integer payMoney = payMoneyStream.sum();
+        if (payMoney < 4900) {
+            payMoney += 800;
+        }
+        order.setPayMoney(payMoney);
+
+        //创建订单时间
+        order.setCreateTime(new Date());
+        order.setUpdateTime(new Date());
+
+        //状态设置
+        order.setOrderStatus("0");
+        order.setPayStatus("0");
+        order.setConsignStatus("0");
+        order.setIsDelete("0");
+
+        //插入订单
+        orderMapper.insert(order);
+
+        Map result = new HashMap();
+        result.put("orderId", order.getId());
+        result.put("payMoney", order.getPayMoney());
+
+        return result;
+    }
+
 }

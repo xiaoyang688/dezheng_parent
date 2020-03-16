@@ -1,11 +1,13 @@
 package com.dezheng.pojo.order;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
 @Table(name = "tb_order_item")
 public class OrderItem implements Serializable {
 
+    @Id
     private String id;
     private Integer category2Id;
     private String skuId;
