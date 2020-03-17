@@ -28,6 +28,14 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!--okhttp-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.4.1</version>
+        </dependency>
+
+
     </dependencies>
 
     <!--tomcat插件-->

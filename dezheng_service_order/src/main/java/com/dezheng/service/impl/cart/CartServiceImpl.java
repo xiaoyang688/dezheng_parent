@@ -2,6 +2,8 @@ package com.dezheng.service.impl.cart;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.dezheng.dao.OrderItemMapper;
 import com.dezheng.dao.OrderMapper;
 import com.dezheng.pojo.order.Order;
@@ -10,14 +12,20 @@ import com.dezheng.redis.CacheKey;
 import com.dezheng.service.cart.CartService;
 import com.dezheng.service.goods.SkuService;
 import com.dezheng.utils.IdWorker;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Service
+@Service(interfaceClass = CartService.class)
 public class CartServiceImpl implements CartService {
 
 
@@ -143,6 +151,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
+    @Transactional
     public Map submitOrder(Order order) {
 
         order.setId(idWorker.nextId() + "");
@@ -151,9 +160,11 @@ public class CartServiceImpl implements CartService {
         List<OrderItem> orderItemList = selectedCartList(order.getUsername());
         //插入订单详细
         for (OrderItem orderItem : orderItemList) {
-            orderItem.setOrderId(order.getId());
-            orderItem.setId(idWorker.nextId() + "");
-            orderItemMapper.insert(orderItem);
+            if (skuService.reduceStore(orderItem.getSkuId(), orderItem.getNum())) {//判断库存是否充足
+                orderItem.setOrderId(order.getId());
+                orderItem.setId(idWorker.nextId() + "");
+                orderItemMapper.insert(orderItem);
+            }
         }
 
         //计算总数量
@@ -164,7 +175,7 @@ public class CartServiceImpl implements CartService {
         IntStream payMoneyStream = orderItemList.stream().mapToInt(OrderItem::getPayMoney);
         Integer payMoney = payMoneyStream.sum();
         if (payMoney < 4900) {
-            payMoney += 800;
+            payMoney += 0;
         }
         order.setPayMoney(payMoney);
 
@@ -181,11 +192,59 @@ public class CartServiceImpl implements CartService {
         //插入订单
         orderMapper.insert(order);
 
+        //删除选中购物车
+        delSelectCart(order.getUsername());
+
+        //生成支付连接
+        String payUrl = getPayUrl(order.getId(), payMoney);
+
+        //封装订单结果
         Map result = new HashMap();
         result.put("orderId", order.getId());
         result.put("payMoney", order.getPayMoney());
-
+        result.put("payUrl", payUrl);
+        result.put("createTime", order.getCreateTime());
+        result.put("totalNum", order.getTotalNum());
         return result;
+    }
+
+    private String getPayUrl(String orderId, Integer payMoney) {
+
+        OkHttpClient client = new OkHttpClient();
+        //格式化小数点
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        String format = decimalFormat.format((float) payMoney / (float) 100);
+        System.out.println(payMoney);
+        System.out.println(format);
+        String url = "http://127.0.0.1:10086/qrcode?totalAmount=" + format + "&subject=校园快药收款平台&storeId=123456&timeoutExpress=15m&outTradeNo=" + orderId;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+            Map responseMap = JSONObject.parseObject(response.body().string(), Map.class);
+            String code = (String) responseMap.get("qr_code");
+            if (code == null) {
+                throw new RuntimeException("生成支付链接失败");
+            }
+            return code;
+        } catch (IOException e) {
+            throw new RuntimeException("生成支付链接失败");
+        }
+
+    }
+
+    @Override
+    public void delSelectCart(String username) {
+        List<Map<String, Object>> cartList = findCartList(username);
+        if (cartList == null) {
+            throw new RuntimeException("购物车为空");
+        }
+        //筛选未选中的购物车
+        List<Map<String, Object>> falseCart = cartList.stream().filter(cart -> cart.get("checkout").equals(false)).collect(Collectors.toList());
+        redisTemplate.boundHashOps(CacheKey.CartList).put(username, falseCart);
     }
 
 }

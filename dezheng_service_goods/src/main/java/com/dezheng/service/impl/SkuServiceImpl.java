@@ -94,4 +94,16 @@ public class SkuServiceImpl implements SkuService {
             redisTemplate.boundHashOps(CacheKey.SkuItem).put(sku.getId(), item);
         }
     }
+
+    @Override
+    public boolean reduceStore(String skuId, Integer num) {
+        Sku sku = findSkuById(skuId);
+        if (sku.getNum() - num > 0) {
+            skuMapper.reduceStoreNum(skuId, num);
+            skuMapper.addSaleNum(skuId, num);
+            return true;
+        } else {
+            throw new RuntimeException("库存不足");
+        }
+    }
 }

@@ -45,6 +45,17 @@ public interface CartService {
      */
     public List<OrderItem> selectedCartList(String username);
 
+    /**
+     * 提交订单
+     * @param order
+     * @return
+     */
     public Map submitOrder(Order order);
+
+    /**
+     * 删除选中购物车
+     * @param username
+     */
+    public void delSelectCart(String username);
 
 }
