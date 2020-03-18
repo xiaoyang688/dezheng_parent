@@ -192,11 +192,11 @@ public class CartServiceImpl implements CartService {
         //插入订单
         orderMapper.insert(order);
 
-        //删除选中购物车
-        delSelectCart(order.getUsername());
-
         //生成支付连接
         String payUrl = getPayUrl(order.getId(), payMoney);
+
+        //删除选中购物车
+        delSelectCart(order.getUsername());
 
         //封装订单结果
         Map result = new HashMap();

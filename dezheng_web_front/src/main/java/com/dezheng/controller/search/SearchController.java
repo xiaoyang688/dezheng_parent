@@ -18,7 +18,9 @@ public class SearchController {
     @GetMapping("/search")
     public Map search(@RequestParam Map<String, String> searchMap){
         try {
+            System.out.println(searchMap);
             searchMap = WebUtil.convertCharsetToUTF8(searchMap);
+            System.out.println(searchMap);
             return skuSearchService.search(searchMap);
         } catch (Exception e) {
             e.printStackTrace();

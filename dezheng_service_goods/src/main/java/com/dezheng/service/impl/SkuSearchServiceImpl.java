@@ -35,6 +35,13 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         searchRequest.types("item");
 
         SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+        //分页
+        Integer page = Integer.parseInt(searchMap.get("page"));
+        Integer size = Integer.parseInt(searchMap.get("size"));
+
+        Integer offset = (page - 1) * size;
+        searchSourceBuilder.from(offset);
+        searchSourceBuilder.size(size);
 
         //布尔查询构造器
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
@@ -57,7 +64,6 @@ public class SkuSearchServiceImpl implements SkuSearchService {
         }
 
 
-
         searchSourceBuilder.query(boolQueryBuilder);
 
         searchRequest.source(searchSourceBuilder);
@@ -75,7 +81,9 @@ public class SkuSearchServiceImpl implements SkuSearchService {
                 resultList.add(hitSourceAsMap);
             }
 
+            long totalHits = hits.getTotalHits();
             resultMap.put("rows", resultList);
+            resultMap.put("totalCount", totalHits);
 
             return resultMap;
 

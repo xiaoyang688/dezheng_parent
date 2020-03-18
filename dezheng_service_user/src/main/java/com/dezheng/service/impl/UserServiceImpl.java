@@ -163,6 +163,10 @@ public class UserServiceImpl implements UserService {
         if (addressList.size() == 0) {
             address.setIsDefault("1");
         }
+        System.out.println(address.getPhone().length());
+        if (address.getPhone().length() != 11) {
+            throw new RuntimeException("输入手机号码不正确");
+        }
         address.setId(idWorker.nextId() + "");
         addressMapper.insertSelective(address);
     }
@@ -194,8 +198,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateAddress(Address address) {
-        int i = addressMapper.updateByPrimaryKey(address);
-        if (i < 1) {
+
+        Address searchAddress = addressMapper.selectByPrimaryKey(address.getId());
+        searchAddress.setContact(address.getContact());
+        if (address.getPhone().length() != 11) {
+            throw new RuntimeException("输入手机号码不正确");
+        }
+        searchAddress.setPhone(address.getPhone());
+        searchAddress.setAddress(address.getAddress());
+        searchAddress.setDetail(address.getDetail());
+        int i = addressMapper.updateByPrimaryKeySelective(searchAddress);
+
+        if (i < 1)
             throw new RuntimeException("修改失败");
         }
     }

@@ -13,6 +13,7 @@ public class Address implements Serializable {
     private String contact;
     private String phone;
     private String address;
+    private String detail;
     private String isDefault;
 
     public String getId() {
@@ -21,6 +22,14 @@ public class Address implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
     public String getUsername() {
