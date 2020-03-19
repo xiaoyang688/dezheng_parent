@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dezheng.dao.OrderItemMapper;
 import com.dezheng.dao.OrderMapper;
 import com.dezheng.pojo.order.Order;
+import com.dezheng.pojo.order.OrderCompose;
 import com.dezheng.pojo.order.OrderItem;
 import com.dezheng.service.cart.CartService;
 import com.dezheng.service.goods.SkuService;
@@ -16,15 +17,13 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.IntStream;
 
 @Service(interfaceClass = OrderService.class)
@@ -47,6 +46,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Reference
     private SkuService skuService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     public Map findOrderComposeById(String username, String orderId) {
 
@@ -107,6 +109,11 @@ public class OrderServiceImpl implements OrderService {
         order.setCreateTime(new Date());
         order.setUpdateTime(new Date());
 
+        //结束订单
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, 15);
+        order.setEndTime(calendar.getTime());
+
         //状态设置
         order.setOrderStatus("1");
         order.setPayStatus("0");
@@ -128,7 +135,76 @@ public class OrderServiceImpl implements OrderService {
         return result;
     }
 
+    public String updateOrderStatus(String orderId, String transactionId) {
+
+        Order order = orderMapper.selectByPrimaryKey(orderId);
+
+        if (order == null) {
+            return "订单不存在";
+        }
+
+        if (order.getPayStatus().equals("1")){
+            return "订单已支付";
+        }
+
+        order.setOrderStatus("2");
+        order.setPayStatus("1");
+        order.setTransactionId(transactionId);
+        order.setPayTime(new Date());
+        orderMapper.updateByPrimaryKeySelective(order);
+        return "更新成功";
+    }
+
+    public void deleteOrderById(String username, String id) {
+
+        Example example = new Example(Order.class);
+        example.createCriteria()
+                .andEqualTo("id", id)
+                .andEqualTo("username", username);
+
+        List<Order> orders = orderMapper.selectByExample(example);
+        if (orders.size() == 0) {
+            throw new RuntimeException("订单不存在");
+        }
+        Order order = orders.get(0);
+        if (order == null) {
+            throw new RuntimeException("订单不存在");
+        }
+        order.setIsDelete("1");
+        orderMapper.updateByPrimaryKey(order);
+    }
+
+    public List<OrderCompose> findOrderByStatus(String username, String status) {
+
+        Example example = new Example(Order.class);
+        example.createCriteria()
+                .andEqualTo("username", username)
+                .andEqualTo("orderStatus", status);
+
+        List<Order> orders = orderMapper.selectByExample(example);
+
+        if (orders.size() == 0) {
+            throw new RuntimeException("订单不存在");
+        }
+
+        //封装订单组合
+        List<OrderCompose> orderComposeList = new ArrayList<>();
+        for (Order order : orders) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderId(order.getId());
+            List<OrderItem> orderItemList = orderItemMapper.select(orderItem);
+            OrderCompose orderCompose = new OrderCompose();
+            orderCompose.setOrder(order);
+            orderCompose.setOrderItemList(orderItemList);
+            orderComposeList.add(orderCompose);
+        }
+
+        return orderComposeList;
+    }
+
     private String getPayUrl(String orderId, Integer payMoney) {
+
+        System.out.println("======>" + orderId);
 
         OkHttpClient client = new OkHttpClient();
         //格式化小数点
