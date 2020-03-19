@@ -101,6 +101,7 @@ public class UserServiceImpl implements UserService {
                 user.setPhone(user.getUsername());
                 user.setIsEmailCheck("0");
                 user.setStatus("1");
+                user.setHeadPic("https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2471723103,4261647594&fm=26&gp=0.jpg");
                 userMapper.insertSelective(user);
             } else {
                 throw new RuntimeException("验证码错误");
@@ -209,7 +210,7 @@ public class UserServiceImpl implements UserService {
         searchAddress.setDetail(address.getDetail());
         int i = addressMapper.updateByPrimaryKeySelective(searchAddress);
 
-        if (i < 1)
+        if (i < 1){
             throw new RuntimeException("修改失败");
         }
     }

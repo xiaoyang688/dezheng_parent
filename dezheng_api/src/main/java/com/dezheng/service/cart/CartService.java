@@ -1,6 +1,5 @@
 package com.dezheng.service.cart;
 
-import com.dezheng.pojo.order.Order;
 import com.dezheng.pojo.order.OrderItem;
 
 import java.util.List;
@@ -44,13 +43,6 @@ public interface CartService {
      * @return
      */
     public List<OrderItem> selectedCartList(String username);
-
-    /**
-     * 提交订单
-     * @param order
-     * @return
-     */
-    public Map submitOrder(Order order);
 
     /**
      * 删除选中购物车

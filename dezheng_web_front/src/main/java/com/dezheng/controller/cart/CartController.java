@@ -2,11 +2,12 @@ package com.dezheng.controller.cart;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.dezheng.entity.Result;
-import com.dezheng.pojo.order.Order;
 import com.dezheng.pojo.order.OrderItem;
 import com.dezheng.service.cart.CartService;
 import com.dezheng.service.user.UserService;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -55,14 +56,6 @@ public class CartController {
         String username = userService.getUserName(request.getHeader("Authorization"));
         List<OrderItem> orderItemList = cartService.selectedCartList(username);
         return orderItemList;
-    }
-
-    @PostMapping("/submitOrder")
-    public Map submitOrder(@RequestBody Order order, HttpServletRequest request){
-        String username = userService.getUserName(request.getHeader("Authorization"));
-        order.setUsername(username);
-        Map result = cartService.submitOrder(order);
-        return result;
     }
 
 }

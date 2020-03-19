@@ -14,6 +14,7 @@ public class Order implements Serializable {
     private Integer totalMoney;
     private Integer payMoney;
     private Integer preMoney;
+    private String payUrl;
     private Date createTime;
     private Date updateTime;
     private Date payTime;
@@ -25,20 +26,20 @@ public class Order implements Serializable {
     private String consignee;
     private String consigneePhone;
     private String consigneeAddress;
-    private String logisticsId;
-    private String logisticsName;
+    private String logisticId;
+    private String logisticName;
     private String transactionId;
     private String orderStatus;
     private String payStatus;
     private String consignStatus;
     private String isDelete;
 
-    public Integer getPayMoney() {
-        return payMoney;
+    public String getPayUrl() {
+        return payUrl;
     }
 
-    public void setPayMoney(Integer payMoney) {
-        this.payMoney = payMoney;
+    public void setPayUrl(String payUrl) {
+        this.payUrl = payUrl;
     }
 
     public Integer getPreMoney() {
@@ -49,20 +50,28 @@ public class Order implements Serializable {
         this.preMoney = preMoney;
     }
 
-    public String getLogisticsId() {
-        return logisticsId;
+    public String getLogisticId() {
+        return logisticId;
     }
 
-    public void setLogisticsId(String logisticsId) {
-        this.logisticsId = logisticsId;
+    public void setLogisticId(String logisticId) {
+        this.logisticId = logisticId;
     }
 
-    public String getLogisticsName() {
-        return logisticsName;
+    public String getLogisticName() {
+        return logisticName;
     }
 
-    public void setLogisticsName(String logisticsName) {
-        this.logisticsName = logisticsName;
+    public void setLogisticName(String logisticName) {
+        this.logisticName = logisticName;
+    }
+
+    public Integer getPayMoney() {
+        return payMoney;
+    }
+
+    public void setPayMoney(Integer payMoney) {
+        this.payMoney = payMoney;
     }
 
     public String getId() {
@@ -87,14 +96,6 @@ public class Order implements Serializable {
 
     public void setTotalMoney(Integer totalMoney) {
         this.totalMoney = totalMoney;
-    }
-
-    public Integer getPerMoney() {
-        return preMoney;
-    }
-
-    public void setPerMoney(Integer perMoney) {
-        this.preMoney = perMoney;
     }
 
     public Date getCreateTime() {
@@ -185,22 +186,6 @@ public class Order implements Serializable {
         this.consigneeAddress = consigneeAddress;
     }
 
-    public String getLogisticId() {
-        return logisticsId;
-    }
-
-    public void setLogisticId(String logisticId) {
-        this.logisticsId = logisticId;
-    }
-
-    public String getLogisticName() {
-        return logisticsName;
-    }
-
-    public void setLogisticName(String logisticName) {
-        this.logisticsName = logisticName;
-    }
-
     public String getTransactionId() {
         return transactionId;
     }
@@ -241,31 +226,4 @@ public class Order implements Serializable {
         this.isDelete = isDelete;
     }
 
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id='" + id + '\'' +
-                ", totalNum=" + totalNum +
-                ", totalMoney=" + totalMoney +
-                ", perMoney=" + preMoney +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", payTime=" + payTime +
-                ", consignTime=" + consignTime +
-                ", endTime=" + endTime +
-                ", closeTime=" + closeTime +
-                ", username='" + username + '\'' +
-                ", buyerMessage='" + buyerMessage + '\'' +
-                ", consignee='" + consignee + '\'' +
-                ", consigneePhone='" + consigneePhone + '\'' +
-                ", consigneeAddress='" + consigneeAddress + '\'' +
-                ", logisticId='" + logisticsId + '\'' +
-                ", logisticName='" + logisticsName + '\'' +
-                ", transactionId='" + transactionId + '\'' +
-                ", orderStatus='" + orderStatus + '\'' +
-                ", payStatus='" + payStatus + '\'' +
-                ", consignStatus='" + consignStatus + '\'' +
-                ", isDelete='" + isDelete + '\'' +
-                '}';
-    }
 }
