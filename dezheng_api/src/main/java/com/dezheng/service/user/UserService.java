@@ -1,9 +1,7 @@
 package com.dezheng.service.user;
 
-import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -21,6 +19,12 @@ public interface UserService {
      * @param code
      */
     public void register(User user, String code);
+
+    /**
+     * 验证码登录
+     * @param user
+     */
+    public boolean loginByCode(User user);
 
     /**
      * 校验密码
@@ -41,41 +45,6 @@ public interface UserService {
      */
     public String getUserName(String token);
 
-    public List<Address> findAddressList(String username);
-
-    /**
-     * 添加地址
-     * @param address
-     */
-    public void addAddress(Address address);
-
-    /**
-     * 更新默认地址￿
-     * @param username
-     * @param id
-     */
-    public void updateDefAddress(String username, String id);
-
-    /**
-     * 更新地址
-     * @param address
-     */
-    public void updateAddress(Address address);
-
-    /**
-     * 通过id查找地址
-     * @param id
-     * @return
-     */
-    public Address findAddressById(String id);
-
-    /**
-     * 删除地址
-     * @param id
-     * @param id
-     */
-    public void deleteAddress(String id);
-
     /**
      * 修改密码
      * @param username
@@ -88,5 +57,17 @@ public interface UserService {
      * @param username
      */
     public void deleteUserByUsername(String username);
+
+    /**
+     * 获取所有头像
+     * @return
+     */
+    public List<String> getHeadPicList();
+
+    /**
+     * 更新头像
+     * @param user
+     */
+    public void updateHeadPic(User user);
 
 }

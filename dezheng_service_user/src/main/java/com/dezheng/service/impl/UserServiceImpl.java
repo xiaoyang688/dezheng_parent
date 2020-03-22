@@ -2,22 +2,17 @@ package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
-import com.dezheng.dao.AddressMapper;
 import com.dezheng.dao.UserMapper;
-import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
-import com.dezheng.utils.IdWorker;
 import com.dezheng.utils.JWTUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -26,16 +21,10 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
 
     @Autowired
-    private AddressMapper addressMapper;
-
-    @Autowired
     private RedisTemplate redisTemplate;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
-
-    @Autowired
-    private IdWorker idWorker;
 
     public void sendSms(String phone, String type) {
 
@@ -52,29 +41,32 @@ public class UserServiceImpl implements UserService {
             code += 1000;
         }
 
-        //用户注册
-        if (type.equals("register")) {
+        saveAndSendCode(phone, code, type);
+
+    }
+
+    /**
+     * 保存验证码到redis并发送rabbitMQ
+     *
+     * @param phone
+     * @param code
+     * @param type
+     */
+    private void saveAndSendCode(String phone, Integer code, String type) {
+
+        if (type.equals("register") || type.equals("modifyPassword") || type.equals("login")) {
             //将验证码存入redis
-            redisTemplate.boundValueOps("register_" + phone).set(code + "");
-            redisTemplate.boundValueOps("register_" + phone).expire(5, TimeUnit.MINUTES);
+            String redisKey = type + "_" + phone;
+            redisTemplate.boundValueOps(redisKey).set(code + "");
+            redisTemplate.boundValueOps(redisKey).expire(5, TimeUnit.MINUTES);
 
             //发送mq信息,使用直接模式
             Map codeMap = new HashMap();
             codeMap.put("phone", phone);
             codeMap.put("code", code + "");
-            rabbitTemplate.convertAndSend("", "registerSms", JSON.toJSONString(codeMap));
-        } else if (type.equals("modifyPassword")) { //修改密码
-            //将验证码存入redis
-            redisTemplate.boundValueOps("modifyPassword_" + phone).set(code + "");
-            redisTemplate.boundValueOps("modifyPassword_" + phone).expire(5, TimeUnit.MINUTES);
-
-            //发送mq信息,使用直接模式
-            Map codeMap = new HashMap();
-            codeMap.put("phone", phone);
-            codeMap.put("code", code + "");
-            rabbitTemplate.convertAndSend("", "modifyPasswordSms", JSON.toJSONString(codeMap));
+            rabbitTemplate.convertAndSend("", type + "Sms", JSON.toJSONString(codeMap));
         } else {
-            throw new RuntimeException("没有此类型");
+            throw new RuntimeException("发送验证码类型错误");
         }
     }
 
@@ -114,12 +106,32 @@ public class UserServiceImpl implements UserService {
                 user.setCreateTime(new Date());
                 user.setUpdateTime(new Date());
                 user.setPhone(user.getUsername());
-                user.setHeadPic("https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2471723103,4261647594&fm=26&gp=0.jpg");
+                user.setHeadPic("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic1.jpg");
                 userMapper.insertSelective(user);
             } else {
                 throw new RuntimeException("验证码错误");
             }
         }
+    }
+
+    @Override
+    public boolean loginByCode(User user) {
+        User searchUser = userMapper.selectByPrimaryKey(user.getUsername());
+        //校验用户是否存在
+        if (searchUser == null) {
+            throw new RuntimeException("用户未注册或已注销，请重新注册");
+        }
+
+        String sysCode = (String) redisTemplate.boundValueOps("login_" + user.getUsername()).get();
+        //校验系统验证码
+        if (sysCode == null) {
+            throw new RuntimeException("验证码过期");
+        } else if (user.getCode().equals(sysCode)) {
+            return true;
+        } else {
+            throw new RuntimeException("验证码错误");
+        }
+
     }
 
     @Override
@@ -160,89 +172,6 @@ public class UserServiceImpl implements UserService {
         return JWTUtils.vaildToken(token);
     }
 
-    public List<Address> findAddressList(String username) {
-        Example example = new Example(Address.class);
-        example.createCriteria()
-                .andEqualTo("username", username);
-        List<Address> addressList = addressMapper.selectByExample(example);
-        return addressList;
-    }
-
-    @Override
-    public void addAddress(Address address) {
-        //查找地址
-        List<Address> addressList = findAddressList(address.getUsername());
-
-        address.setIsDefault("0");
-        if (addressList.size() == 0) {
-            address.setIsDefault("1");
-        }
-        System.out.println(address.getPhone().length());
-        if (address.getPhone().length() != 11) {
-            throw new RuntimeException("输入手机号码不正确");
-        }
-        address.setId(idWorker.nextId() + "");
-        addressMapper.insertSelective(address);
-    }
-
-    public void updateDefAddress(String username, String id) {
-
-        List<Address> addressList = findAddressList(username);
-        List<Address> addr = addressList.stream().filter(address -> address.getIsDefault().equals("1")).collect(Collectors.toList());
-        //没有设置默认地址
-        if (addr == null) {
-            addr = new ArrayList<>();
-        }
-
-        if (addr.size() == 1) {
-            Address defaultAddress = addr.get(0);
-            //将原来的默认地址改为不默认
-            if (defaultAddress.getId().equals(id)) {
-                throw new RuntimeException("已经是默认地址");
-            }
-            defaultAddress.setIsDefault("0");
-            addressMapper.updateByPrimaryKey(defaultAddress);
-        }
-
-        //改为默认地址
-        Address modifyAddress = addressMapper.selectByPrimaryKey(id);
-        modifyAddress.setIsDefault("1");
-        addressMapper.updateByPrimaryKey(modifyAddress);
-    }
-
-    @Override
-    public void updateAddress(Address address) {
-
-        Address searchAddress = addressMapper.selectByPrimaryKey(address.getId());
-        searchAddress.setContact(address.getContact());
-        if (address.getPhone().length() != 11) {
-            throw new RuntimeException("输入手机号码不正确");
-        }
-        searchAddress.setPhone(address.getPhone());
-        searchAddress.setAddress(address.getAddress());
-        searchAddress.setDetail(address.getDetail());
-        int i = addressMapper.updateByPrimaryKeySelective(searchAddress);
-
-        if (i < 1) {
-            throw new RuntimeException("修改失败");
-        }
-    }
-
-    @Override
-    public Address findAddressById(String id) {
-        Address address = addressMapper.selectByPrimaryKey(id);
-        if (address == null) {
-            throw new RuntimeException("地址不存在");
-        }
-        return address;
-    }
-
-    public void deleteAddress(String id) {
-        int i = addressMapper.deleteByPrimaryKey(id);
-        if (i < 1) {
-            throw new RuntimeException("地址已删除");
-        }
-    }
 
     @Override
     public void modifyPassword(String username, String code, String password) {
@@ -254,6 +183,10 @@ public class UserServiceImpl implements UserService {
 
         //校验验证码
         String sysCode = (String) redisTemplate.boundValueOps("modifyPassword_" + username).get();
+
+        if (sysCode == null) {
+            throw new RuntimeException("验证码过期");
+        }
 
         if (sysCode.equals(code)) {
             //修改密码
@@ -270,6 +203,44 @@ public class UserServiceImpl implements UserService {
         int i = userMapper.deleteByPrimaryKey(username);
         if (i < 1) {
             throw new RuntimeException("用户不存在或用户已删除");
+        }
+    }
+
+    @Override
+    public List<String> getHeadPicList() {
+
+        List<String> headPicList = new ArrayList<>();
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic1.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic2.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic3.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic4.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic5.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic6.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic7.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic8.jpg");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic9.jpg");
+
+        return headPicList;
+    }
+
+    @Override
+    public void updateHeadPic(User user) {
+        //校验用户
+        User searchUser = userMapper.selectByPrimaryKey(user.getUsername());
+        if (searchUser == null) {
+            throw new RuntimeException("当前用户不存在");
+        }
+
+        //更新头像
+        String headPic = user.getHeadPic();
+        if (headPic == null) {
+            throw new RuntimeException("头像不能为空");
+        }
+        searchUser.setHeadPic(headPic);
+        int i = userMapper.updateByPrimaryKey(searchUser);
+
+        if (i < 1) {
+            throw new RuntimeException("更换失败");
         }
     }
 

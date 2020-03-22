@@ -12,9 +12,11 @@
 	<!--消费者监听类-->
 	<bean id="registerSmsListen" class="com.dezheng.listen.RegisterSmsListen"></bean>
 	<bean id="modifyPasswordListen" class="com.dezheng.listen.ModifyPasswordListen"></bean>
+	<bean id="loginListen" class="com.dezheng.listen.LoginListen"></bean>
 	<!--设置监听容器-->
 	<rabbit:listener-container connection-factory="connectionFactory" acknowledge="auto" >
 		<rabbit:listener queue-names="registerSms" ref="registerSmsListen"/>
 		<rabbit:listener queue-names="modifyPasswordSms" ref="modifyPasswordListen"/>
+		<rabbit:listener queue-names="loginSms" ref="loginListen"/>
 	</rabbit:listener-container>
 </beans>

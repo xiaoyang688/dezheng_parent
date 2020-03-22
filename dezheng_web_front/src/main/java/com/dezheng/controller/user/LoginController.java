@@ -41,12 +41,18 @@ public class LoginController {
     @PostMapping("/signIn")
     private Map signIn(@RequestBody User user) {
 
-        Map map = new HashMap();
-        //检验用户
-        if (userService.checkUser(user)) { //校验成功
-            return userService.getUserInfo(user.getUsername());
-        } else {
-            return map;
+        Map userInfo = new HashMap();
+
+        //密码登录
+        if (user.getCode() == null) {
+            if (userService.checkUser(user)) {
+                userInfo = userService.getUserInfo(user.getUsername());
+            }
+        } else { //验证码登录
+            if (userService.loginByCode(user)) {
+                userInfo = userService.getUserInfo(user.getUsername());
+            }
         }
+        return userInfo;
     }
 }
