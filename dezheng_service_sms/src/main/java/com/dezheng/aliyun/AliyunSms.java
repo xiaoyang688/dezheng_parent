@@ -20,13 +20,10 @@ public class AliyunSms {
     @Value("${secret}")
     private String secret;
 
-    @Value(("${templateCode}"))
-    private String templateCode;
-
     @Value("${templateParam}")
     private String templateParam;
 
-    public CommonResponse sendSms(String phone, String code) {
+    public CommonResponse sendSms(String phone, String code, String templateCode) {
         DefaultProfile profile = DefaultProfile.getProfile("cn-hangzhou", accessKeyId, secret);
         IAcsClient client = new DefaultAcsClient(profile);
 
@@ -39,8 +36,6 @@ public class AliyunSms {
         request.putQueryParameter("PhoneNumbers", phone);
         request.putQueryParameter("SignName", "校园快药");
         request.putQueryParameter("TemplateCode", templateCode);
-        System.out.println(templateCode);
-        System.out.println(templateParam);
         request.putQueryParameter("TemplateParam", templateParam.replace("value", code));
         CommonResponse response = null;
         try {

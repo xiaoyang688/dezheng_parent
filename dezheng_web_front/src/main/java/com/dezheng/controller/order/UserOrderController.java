@@ -44,7 +44,7 @@ public class UserOrderController {
     }
 
     @GetMapping("/findOrderByStatus")
-    public List<OrderCompose> findOrderByStatus(HttpServletRequest request, String status){
+    public List<OrderCompose> findOrderByStatus(HttpServletRequest request, @RequestParam(required = false) String status){
         String username = userService.getUserName(request.getHeader("Authorization"));
         return orderService.findOrderByStatus(username, status);
     }

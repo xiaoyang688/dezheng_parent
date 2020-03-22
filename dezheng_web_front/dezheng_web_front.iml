@@ -25,22 +25,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
-    <orderEntry type="module" module-name="dezheng_pojo" />
-    <orderEntry type="module" module-name="dezheng_api" />
     <orderEntry type="module" module-name="dezheng_common_web" />
     <orderEntry type="module" module-name="dezheng_common" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:5.0.5.RELEASE" level="project" />

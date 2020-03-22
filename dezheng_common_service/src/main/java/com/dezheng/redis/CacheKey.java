@@ -5,5 +5,4 @@ public enum CacheKey {
     CategoryTree,
     SkuItem,
     CartList,
-    AddressList
 }

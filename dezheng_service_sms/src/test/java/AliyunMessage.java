@@ -12,7 +12,5 @@ pom.xml
 class SendSms {
     public static void main(String[] args) {
         AliyunSms aliyunSms = new AliyunSms();
-        CommonResponse response = aliyunSms.sendSms("18024088480", "1234");
-        System.out.println(response.getData());
     }
 }

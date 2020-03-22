@@ -2,6 +2,7 @@ package com.dezheng.service.impl.order;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dezheng.dao.OrderItemMapper;
 import com.dezheng.dao.OrderMapper;
@@ -13,9 +14,11 @@ import com.dezheng.service.goods.SkuService;
 import com.dezheng.service.order.OrderItemService;
 import com.dezheng.service.order.OrderService;
 import com.dezheng.utils.IdWorker;
+import com.github.pagehelper.PageHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +52,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RabbitTemplate rabbitSentFront;
 
     public Map findOrderComposeById(String username, String orderId) {
 
@@ -147,11 +153,15 @@ public class OrderServiceImpl implements OrderService {
             return "订单已支付";
         }
 
+
         order.setOrderStatus("2");
         order.setPayStatus("1");
         order.setTransactionId(transactionId);
         order.setPayTime(new Date());
         orderMapper.updateByPrimaryKeySelective(order);
+
+        //发送消息给前端
+        rabbitSentFront.convertAndSend("paynotify", "",JSON.toJSONString(order));
         return "更新成功";
     }
 
@@ -176,10 +186,20 @@ public class OrderServiceImpl implements OrderService {
 
     public List<OrderCompose> findOrderByStatus(String username, String status) {
 
+        List<OrderCompose> orderComposeList = new ArrayList<>();
+
         Example example = new Example(Order.class);
-        example.createCriteria()
+        if (status != null) {
+            example.createCriteria()
                 .andEqualTo("username", username)
-                .andEqualTo("orderStatus", status);
+                .andEqualTo("orderStatus", status)
+                .andEqualTo("isDelete", "0");
+        }else{
+            example.createCriteria()
+                .andEqualTo("username", username)
+                .andEqualTo("isDelete", "0");
+        }
+
 
         List<Order> orders = orderMapper.selectByExample(example);
 
@@ -188,7 +208,6 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //封装订单组合
-        List<OrderCompose> orderComposeList = new ArrayList<>();
         for (Order order : orders) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(order.getId());

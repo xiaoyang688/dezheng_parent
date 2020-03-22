@@ -20,9 +20,6 @@ public class User implements Serializable {
     private String headPic;
     private String sex;
     private Date birthday;
-    private String isEmailCheck;
-    private String status;
-    private Date lastLoginTime;
     private String code;
 
     public String getCode() {
@@ -121,27 +118,4 @@ public class User implements Serializable {
         this.birthday = birthday;
     }
 
-    public String getIsEmailCheck() {
-        return isEmailCheck;
-    }
-
-    public void setIsEmailCheck(String isEmailCheck) {
-        this.isEmailCheck = isEmailCheck;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public Date getLastLoginTime() {
-        return lastLoginTime;
-    }
-
-    public void setLastLoginTime(Date lastLoginTime) {
-        this.lastLoginTime = lastLoginTime;
-    }
 }

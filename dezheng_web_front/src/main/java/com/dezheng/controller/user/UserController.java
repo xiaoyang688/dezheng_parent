@@ -3,7 +3,9 @@ package com.dezheng.controller.user;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.Address;
+import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
+import com.dezheng.utils.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +66,35 @@ public class UserController {
     public Result updateAddress(@RequestBody Address address) {
         userService.updateAddress(address);
         return new Result(1, "修改成功");
+    }
+
+    @PostMapping("/modifyPassword")
+    public Result modifyPassword(@RequestBody User user, HttpServletRequest request) {
+        String username = userService.getUserName(request.getHeader("Authorization"));
+        //判断是否当前用户
+        if (!user.getUsername().equals(username)) {
+            throw new RuntimeException("只能修改当前用户密码");
+        }
+
+        //密码加密
+        String password = BCrypt.hashpw(user.getPassword(), BCrypt.gensalt());
+        userService.modifyPassword(username, user.getCode(), password);
+
+        return new Result(1, "修改密码成功");
+    }
+
+    @GetMapping("/deleteUser")
+    public Result deleteUserByUserName(String username, HttpServletRequest request) {
+        //获取当前登录用户
+        String loginUser = userService.getUserName(request.getHeader("Authorization"));
+
+        //校验当前用户
+        if (!username.equals(loginUser)) {
+            throw new RuntimeException("只能注销当前用户");
+        }
+
+        userService.deleteUserByUsername(username);
+        return new Result(1, "注销成功");
     }
 
 }

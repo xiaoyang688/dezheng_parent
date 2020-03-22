@@ -5,7 +5,7 @@
     <title>Title</title>
 </head>
 <body>
-<a href="https://qr.alipay.com/bax09374wnoitknoeaz260b3">点击付款</a>
+<a href="https://qr.alipay.com/bax06759fixylnervzi580a9">点击付款</a>
 </body>
 <script src="js/stomp.min.js"></script>
 <script> var client = Stomp.client('ws://120.79.89.241:15674/ws'); var on_connect = function(x) { id = client.subscribe("/exchange/paynotify", function(d) { alert(d.body); }); }; var on_error = function() { console.log('error'); }; client.connect('guest', 'guest', on_connect, on_error, '/'); </script>

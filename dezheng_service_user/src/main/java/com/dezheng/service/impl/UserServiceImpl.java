@@ -6,7 +6,6 @@ import com.dezheng.dao.AddressMapper;
 import com.dezheng.dao.UserMapper;
 import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.User;
-import com.dezheng.redis.CacheKey;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
 import com.dezheng.utils.IdWorker;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private IdWorker idWorker;
 
-    public void sendSms(String phone) {
+    public void sendSms(String phone, String type) {
 
         //校验
         if (phone.length() < 10) {
@@ -52,15 +51,31 @@ public class UserServiceImpl implements UserService {
         if (code <= 999) {
             code += 1000;
         }
-        //将验证码存入redis
-        redisTemplate.boundValueOps(phone).set(code + "");
-        redisTemplate.boundValueOps("phone").expire(5, TimeUnit.MINUTES);
 
-        //发送mq信息,使用直接模式
-        Map codeMap = new HashMap();
-        codeMap.put("phone", phone);
-        codeMap.put("code", code + "");
-        rabbitTemplate.convertAndSend("", "queue.sms", JSON.toJSONString(codeMap));
+        //用户注册
+        if (type.equals("register")) {
+            //将验证码存入redis
+            redisTemplate.boundValueOps("register_" + phone).set(code + "");
+            redisTemplate.boundValueOps("register_" + phone).expire(5, TimeUnit.MINUTES);
+
+            //发送mq信息,使用直接模式
+            Map codeMap = new HashMap();
+            codeMap.put("phone", phone);
+            codeMap.put("code", code + "");
+            rabbitTemplate.convertAndSend("", "registerSms", JSON.toJSONString(codeMap));
+        } else if (type.equals("modifyPassword")) { //修改密码
+            //将验证码存入redis
+            redisTemplate.boundValueOps("modifyPassword_" + phone).set(code + "");
+            redisTemplate.boundValueOps("modifyPassword_" + phone).expire(5, TimeUnit.MINUTES);
+
+            //发送mq信息,使用直接模式
+            Map codeMap = new HashMap();
+            codeMap.put("phone", phone);
+            codeMap.put("code", code + "");
+            rabbitTemplate.convertAndSend("", "modifyPasswordSms", JSON.toJSONString(codeMap));
+        } else {
+            throw new RuntimeException("没有此类型");
+        }
     }
 
     @Override
@@ -83,7 +98,7 @@ public class UserServiceImpl implements UserService {
         } else {//用户不存在
 
             //获取系统验证码
-            String sysCode = (String) redisTemplate.boundValueOps(user.getUsername()).get();
+            String sysCode = (String) redisTemplate.boundValueOps("register_" + user.getUsername()).get();
 
             //获取验证码为空
             if (sysCode == null) {
@@ -99,8 +114,6 @@ public class UserServiceImpl implements UserService {
                 user.setCreateTime(new Date());
                 user.setUpdateTime(new Date());
                 user.setPhone(user.getUsername());
-                user.setIsEmailCheck("0");
-                user.setStatus("1");
                 user.setHeadPic("https://dss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=2471723103,4261647594&fm=26&gp=0.jpg");
                 userMapper.insertSelective(user);
             } else {
@@ -114,7 +127,7 @@ public class UserServiceImpl implements UserService {
 
         User searchUser = userMapper.selectByPrimaryKey(user.getUsername());
         if (searchUser == null) {
-            throw new RuntimeException("用户未注册");
+            throw new RuntimeException("用户未注册或已注销，请重新注册");
         }
         //检验密码
         if (BCrypt.checkpw(user.getPassword(), searchUser.getPassword())) {
@@ -210,7 +223,7 @@ public class UserServiceImpl implements UserService {
         searchAddress.setDetail(address.getDetail());
         int i = addressMapper.updateByPrimaryKeySelective(searchAddress);
 
-        if (i < 1){
+        if (i < 1) {
             throw new RuntimeException("修改失败");
         }
     }
@@ -230,4 +243,34 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("地址已删除");
         }
     }
+
+    @Override
+    public void modifyPassword(String username, String code, String password) {
+
+        User user = userMapper.selectByPrimaryKey(username);
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        //校验验证码
+        String sysCode = (String) redisTemplate.boundValueOps("modifyPassword_" + username).get();
+
+        if (sysCode.equals(code)) {
+            //修改密码
+            user.setPassword(password);
+            userMapper.updateByPrimaryKeySelective(user);
+        } else {
+            throw new RuntimeException("验证码错误");
+        }
+
+    }
+
+    @Override
+    public void deleteUserByUsername(String username) {
+        int i = userMapper.deleteByPrimaryKey(username);
+        if (i < 1) {
+            throw new RuntimeException("用户不存在或用户已删除");
+        }
+    }
+
 }

@@ -10,10 +10,10 @@ import java.util.Map;
 public interface UserService {
 
     /**
-     * 发送验证码
+     * 发送注册验证码
      * @param phone
      */
-    public void sendSms(String phone);
+    public void sendSms(String phone, String type);
 
     /**
      * 用户注册
@@ -75,5 +75,18 @@ public interface UserService {
      * @param id
      */
     public void deleteAddress(String id);
+
+    /**
+     * 修改密码
+     * @param username
+     * @param password
+     */
+    public void modifyPassword(String username, String code, String password);
+
+    /**
+     * 注销用户
+     * @param username
+     */
+    public void deleteUserByUsername(String username);
 
 }

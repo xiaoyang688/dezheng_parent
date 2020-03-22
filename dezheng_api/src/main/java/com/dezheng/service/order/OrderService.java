@@ -35,6 +35,12 @@ public interface OrderService {
      */
     public void deleteOrderById(String username, String id);
 
+    /**
+     * 更加订单状态查询
+     * @param username
+     * @param status
+     * @return
+     */
     public List<OrderCompose> findOrderByStatus(String username, String status);
 
 }

@@ -23,8 +23,8 @@ public class LoginController {
     private UserService userService;
 
     @GetMapping("/sendSms")
-    public Result sendSms(@RequestParam("phone") String phone) {
-        userService.sendSms(phone);
+    public Result sendSms(@RequestParam("phone") String phone, String type) {
+        userService.sendSms(phone, type);
         return new Result(1, "发送验证码成功！");
     }
 
