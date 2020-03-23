@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.dezheng.dao.OrderItemMapper;
 import com.dezheng.dao.OrderMapper;
+import com.dezheng.pojo.goods.Sku;
 import com.dezheng.pojo.order.Order;
 import com.dezheng.pojo.order.OrderCompose;
 import com.dezheng.pojo.order.OrderItem;
@@ -14,7 +15,6 @@ import com.dezheng.service.goods.SkuService;
 import com.dezheng.service.order.OrderItemService;
 import com.dezheng.service.order.OrderService;
 import com.dezheng.utils.IdWorker;
-import com.github.pagehelper.PageHelper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -84,13 +84,23 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Map submitOrder(Order order) {
 
+        System.out.println("我被调用了");
+
         order.setId(idWorker.nextId() + "");
 
         //获取勾选购物车
         List<OrderItem> orderItemList = cartService.selectedCartList(order.getUsername());
+
+        if (orderItemList.size() == 0) {
+            throw new RuntimeException("购物车不能为空");
+        }
+
         //插入订单详细
         for (OrderItem orderItem : orderItemList) {
-            if (skuService.reduceStore(orderItem.getSkuId(), orderItem.getNum())) {//判断库存是否充足
+            if (skuService.hasStore(orderItem.getSkuId(), orderItem.getNum())) {//判断库存是否充足
+                //减少库存
+                skuService.reduce(orderItem.getSkuId(), orderItem.getNum());
+                //生成订单详细
                 orderItem.setOrderId(order.getId());
                 orderItem.setId(idWorker.nextId() + "");
                 orderItemMapper.insert(orderItem);
@@ -149,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
             return "订单不存在";
         }
 
-        if (order.getPayStatus().equals("1")){
+        if (order.getPayStatus().equals("1")) {
             return "订单已支付";
         }
 
@@ -161,7 +171,7 @@ public class OrderServiceImpl implements OrderService {
         orderMapper.updateByPrimaryKeySelective(order);
 
         //发送消息给前端
-        rabbitSentFront.convertAndSend("paynotify", "",JSON.toJSONString(order));
+        rabbitSentFront.convertAndSend("paynotify", "", JSON.toJSONString(order));
         return "更新成功";
     }
 
@@ -176,12 +186,28 @@ public class OrderServiceImpl implements OrderService {
         if (orders.size() == 0) {
             throw new RuntimeException("订单不存在");
         }
-        Order order = orders.get(0);
-        if (order == null) {
+        Order searchOrder = orders.get(0);
+
+        if (searchOrder.getIsDelete().equals("1")) {
+            throw new RuntimeException("订单已删除");
+        }
+
+        if (searchOrder == null) {
             throw new RuntimeException("订单不存在");
         }
-        order.setIsDelete("1");
-        orderMapper.updateByPrimaryKey(order);
+        searchOrder.setIsDelete("1");
+        orderMapper.updateByPrimaryKey(searchOrder);
+
+        //增加库存，减少销量
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrderId(searchOrder.getId());
+        List<OrderItem> orderItemList = orderItemMapper.select(orderItem);
+        for (OrderItem item : orderItemList) {
+            Sku sku = skuService.findSkuById(item.getSkuId());
+            skuService.reduce(sku.getId(), -item.getNum());
+        }
+
+        System.out.println("程序执行到这！");
     }
 
     public List<OrderCompose> findOrderByStatus(String username, String status) {
@@ -191,13 +217,13 @@ public class OrderServiceImpl implements OrderService {
         Example example = new Example(Order.class);
         if (status != null) {
             example.createCriteria()
-                .andEqualTo("username", username)
-                .andEqualTo("orderStatus", status)
-                .andEqualTo("isDelete", "0");
-        }else{
+                    .andEqualTo("username", username)
+                    .andEqualTo("orderStatus", status)
+                    .andEqualTo("isDelete", "0");
+        } else {
             example.createCriteria()
-                .andEqualTo("username", username)
-                .andEqualTo("isDelete", "0");
+                    .andEqualTo("username", username)
+                    .andEqualTo("isDelete", "0");
         }
 
 

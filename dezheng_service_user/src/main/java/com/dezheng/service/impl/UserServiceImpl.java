@@ -2,10 +2,13 @@ package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.dezheng.dao.SuggestMapper;
 import com.dezheng.dao.UserMapper;
+import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
+import com.dezheng.utils.IdWorker;
 import com.dezheng.utils.JWTUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +21,20 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl implements UserService {
 
     @Autowired
+    private IdWorker idWorker;
+
+    @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private SuggestMapper suggestMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
 
     public void sendSms(String phone, String type) {
 
@@ -241,6 +251,15 @@ public class UserServiceImpl implements UserService {
 
         if (i < 1) {
             throw new RuntimeException("更换失败");
+        }
+    }
+
+    @Override
+    public void suggest(Suggest suggest) {
+        suggest.setId(idWorker.nextId() + "");
+        int i = suggestMapper.insert(suggest);
+        if (i < 1) {
+            throw new RuntimeException("提交失败");
         }
     }
 

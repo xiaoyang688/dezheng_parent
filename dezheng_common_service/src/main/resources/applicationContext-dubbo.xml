@@ -12,5 +12,7 @@
     <dubbo:application name="${dubbo.application}" />
     <dubbo:registry protocol="zookeeper" address="${zookeeper.address}" check="true" />
     <dubbo:annotation package="com.dezheng.service" />
+    <dubbo:provider timeout="10000" retries="0"></dubbo:provider>
+    <dubbo:consumer timeout="10000" retries="0"></dubbo:consumer>
     <!--<context:annotation-config/>-->
 </beans>

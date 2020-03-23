@@ -96,14 +96,22 @@ public class SkuServiceImpl implements SkuService {
     }
 
     @Override
-    public boolean reduceStore(String skuId, Integer num) {
-        Sku sku = findSkuById(skuId);
-        if (sku.getNum() - num > 0) {
-            skuMapper.reduceStoreNum(skuId, num);
-            skuMapper.addSaleNum(skuId, num);
+    public boolean hasStore(String skuId, Integer num) {
+        Sku sku = skuMapper.selectByPrimaryKey(skuId);
+        //判断库存是否足够
+        if (sku.getNum() > num) {
             return true;
-        } else {
-            throw new RuntimeException("库存不足");
+        }
+        return false;
+    }
+
+    @Override
+    public void reduce(String skuId, Integer num) {
+        try {
+            skuMapper.addSaleNum(skuId, num);
+            skuMapper.reduceStoreNum(skuId, num);
+        } catch (Exception e) {
+            throw new RuntimeException("减少库存失败");
         }
     }
 }

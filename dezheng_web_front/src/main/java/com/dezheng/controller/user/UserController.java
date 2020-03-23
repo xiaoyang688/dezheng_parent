@@ -3,6 +3,7 @@ package com.dezheng.controller.user;
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.Address;
+import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.AddressService;
 import com.dezheng.service.user.UserService;
@@ -112,6 +113,14 @@ public class UserController {
         user.setUsername(userName);
         userService.updateHeadPic(user);
         return new Result(1, "修改成功");
+    }
+
+    @PostMapping("/suggest")
+    public Result suggest(@RequestBody Suggest suggest, HttpServletRequest request) {
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        suggest.setUsername(userName);
+        userService.suggest(suggest);
+        return new Result(1, "您的宝贵意见我们已经收到");
     }
 
 }

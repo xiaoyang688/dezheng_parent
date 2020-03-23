@@ -1,5 +1,6 @@
 package com.dezheng.service.user;
 
+import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
 
 import java.util.List;
@@ -69,5 +70,11 @@ public interface UserService {
      * @param user
      */
     public void updateHeadPic(User user);
+
+    /**
+     * 用户提建议
+     * @param suggest
+     */
+    public void suggest(Suggest suggest);
 
 }

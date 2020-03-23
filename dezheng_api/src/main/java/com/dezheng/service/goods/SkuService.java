@@ -21,10 +21,18 @@ public interface SkuService {
     public void saveAllSkuItemToRedis();
 
     /**
-     * 减少库存
+     * 是否存在库存
      * @param skuId
      * @param num
      * @return
      */
-    public boolean reduceStore(String skuId, Integer num);
+    public boolean hasStore(String skuId, Integer num);
+
+    /**
+     * 减少库存
+     * @param skuId
+     * @param num
+     */
+    public void reduce(String skuId, Integer num);
+
 }
