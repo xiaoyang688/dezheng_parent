@@ -9,7 +9,9 @@ import com.dezheng.redis.CacheKey;
 import com.dezheng.service.goods.SkuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import tk.mybatis.mapper.entity.Example;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,19 @@ public class SkuServiceImpl implements SkuService {
         Map item = (Map) redisTemplate.boundHashOps(CacheKey.SkuItem).get(id);
 
         return item;
+    }
+
+    @Override
+    public List<Sku> findSkuBySpuIds(String[] spuIds) {
+
+        Example example = new Example(Sku.class);
+        example.createCriteria()
+                .andIn("spuId", Arrays.asList(spuIds));
+        List<Sku> skuList = skuMapper.selectByExample(example);
+        if (skuList.size() == 0) {
+            throw new RuntimeException("商品不存在");
+        }
+        return skuList;
     }
 
     @Override

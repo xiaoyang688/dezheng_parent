@@ -68,6 +68,11 @@ public class AddressServiceImpl implements AddressService {
 
         //改为默认地址
         Address modifyAddress = addressMapper.selectByPrimaryKey(id);
+
+        if (modifyAddress == null) {
+            throw new RuntimeException("地址不存在");
+        }
+
         modifyAddress.setIsDefault("1");
         addressMapper.updateByPrimaryKey(modifyAddress);
     }

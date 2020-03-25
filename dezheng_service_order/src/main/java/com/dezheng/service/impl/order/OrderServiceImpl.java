@@ -172,6 +172,7 @@ public class OrderServiceImpl implements OrderService {
 
         //发送消息给前端
         rabbitSentFront.convertAndSend("paynotify", "", JSON.toJSONString(order));
+        
         return "更新成功";
     }
 

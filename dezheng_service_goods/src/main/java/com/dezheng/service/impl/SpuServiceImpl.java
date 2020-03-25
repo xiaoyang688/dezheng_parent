@@ -10,12 +10,11 @@ import com.dezheng.dao.SpuMapper;
 import com.dezheng.pojo.goods.*;
 import com.dezheng.service.goods.SpuService;
 import com.dezheng.utils.IdWorker;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import tk.mybatis.mapper.entity.Example;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class SpuServiceImpl implements SpuService {
@@ -35,9 +34,27 @@ public class SpuServiceImpl implements SpuService {
     @Autowired
     private IdWorker idWorker;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @Override
     public List<Spu> findAll() {
         return spuMapper.selectAll();
+    }
+
+    @Override
+    public List<Spu> findSpuByIds(String[] ids) {
+
+        Example example = new Example(Spu.class);
+        example.createCriteria()
+                .andIn("id", Arrays.asList(ids));
+
+        List<Spu> spuList = spuMapper.selectByExample(example);
+        if (spuList.size() == 0) {
+            throw new RuntimeException("商品不存在");
+        }
+
+        return spuList;
     }
 
     @Override
@@ -47,7 +64,7 @@ public class SpuServiceImpl implements SpuService {
         Spu spu = goods.getSpu();
         spu.setId(idWorker.nextId() + "");
         Brand brand = brandMapper.selectByPrimaryKey(spu.getBrandId());
-        spu.setName( brand.getName() + " " + spu.getName());
+        spu.setName(brand.getName() + " " + spu.getName());
         spu.setIsMarketable("0");
         spu.setIsDelete("0");
         spu.setStatus("0");
@@ -94,4 +111,45 @@ public class SpuServiceImpl implements SpuService {
             skuMapper.insertSelective(sku);
         }
     }
+
+    @Override
+    public void pushOrPull(String[] ids, String type) {
+        String ERROR_MESSAGE = "商品不存在或已上架";
+        String isMarketable = "0"; //默认查询下架状态
+        if (type.equals("0")) {//当下架时，查询上架状态
+            isMarketable = "1";
+            ERROR_MESSAGE = "商品不存在或已下架";
+        }
+        //查询符合的Id
+        Example example = new Example(Spu.class);
+        List<String> idList = Arrays.asList(ids);
+        example.createCriteria()
+                .andIn("id", idList)
+                .andEqualTo("isMarketable", isMarketable);
+        List<Spu> spuList = spuMapper.selectByExample(example);
+
+        if (spuList.size() == 0) {
+            throw new RuntimeException(ERROR_MESSAGE);
+        }
+
+        //更新符合的Spu
+        Spu updateSpu = new Spu();
+        updateSpu.setIsMarketable(type);
+        spuMapper.updateByExampleSelective(updateSpu, example);
+
+        //获取符合的spuId
+        List<String> spuIdList = new ArrayList<>();
+        for (Spu spu : spuList) {
+            spuIdList.add(spu.getId());
+        }
+
+        //发送消息更新索引
+        if (type.equals("1")) {
+            rabbitTemplate.convertAndSend("pullOrPush", "push", JSON.toJSONString(spuIdList));
+        } else {
+            rabbitTemplate.convertAndSend("pullOrPush", "pull", JSON.toJSONString(spuIdList));
+        }
+    }
+
+
 }

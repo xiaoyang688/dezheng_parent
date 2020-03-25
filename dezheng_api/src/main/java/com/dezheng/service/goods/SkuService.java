@@ -1,7 +1,9 @@
 package com.dezheng.service.goods;
 
 import com.dezheng.pojo.goods.Sku;
+import com.dezheng.pojo.goods.Spu;
 
+import java.util.List;
 import java.util.Map;
 
 public interface SkuService {
@@ -13,6 +15,18 @@ public interface SkuService {
      */
     public Map findSkuByIdAtRedis(String id);
 
+    /**
+     * 通过spuId查询sku
+     * @param spuIds
+     * @return
+     */
+    public List<Sku> findSkuBySpuIds(String[] spuIds);
+
+    /**
+     * 通过spuId查询spu
+     * @param id
+     * @return
+     */
     public Sku findSkuById(String id);
 
     /**
