@@ -47,6 +47,7 @@ public class IndexServiceImpl implements IndexService {
             Map skuMap = new HashMap();
             skuMap.put("id", sku.getId());
             skuMap.put("name", sku.getName());
+            skuMap.put("image", sku.getImage());
             skuMap.put("brandName", sku.getBrandName());
             skuMap.put("categoryName", sku.getCategory2Name());
             skuMap.put("price", sku.getPrice());

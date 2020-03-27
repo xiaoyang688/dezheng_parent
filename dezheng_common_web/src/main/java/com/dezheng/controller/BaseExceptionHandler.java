@@ -18,6 +18,10 @@ public class BaseExceptionHandler {
     public Result error(Exception e) {
         e.printStackTrace();
         System.out.println("出现异常了！！！");
+        if (e.getMessage().equals("Token 过期") || e.getMessage().equals("Token 无效")) {
+            return new Result(4, e.getMessage());
+        }
+        System.out.println("我进入该方法啦");
         return new Result(0, e.getMessage());
     }
 }

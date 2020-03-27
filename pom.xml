@@ -21,6 +21,7 @@
         <module>dezheng_service_user</module>
         <module>dezheng_service_sms</module>
         <module>dezheng_service_index</module>
+        <module>dezheng_service_seckill</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -95,6 +96,17 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>dubbo</artifactId>
                 <version>${dubbo.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                    <!--去掉javassist依赖-->
+                    <exclusion>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
@@ -117,9 +129,9 @@
                 <version>1.2.47</version>
             </dependency>
             <dependency>
-                <groupId>javassist</groupId>
+                <groupId>org.javassist</groupId>
                 <artifactId>javassist</artifactId>
-                <version>3.12.1.GA</version>
+                <version>3.19.0-GA</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
