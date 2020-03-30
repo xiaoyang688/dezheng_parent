@@ -1,8 +1,10 @@
 package com.dezheng.controller.user;
 
 import com.alibaba.dubbo.config.annotation.Reference;
+import com.alibaba.fastjson.JSON;
 import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.Address;
+import com.dezheng.pojo.user.CollectInfo;
 import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.AddressService;
@@ -121,6 +123,20 @@ public class UserController {
         suggest.setUsername(userName);
         userService.suggest(suggest);
         return new Result(1, "您的宝贵意见我们已经收到");
+    }
+
+    @PostMapping("/collectInfo")
+    public Map<String, Object> collectInfo(@RequestBody Map<String, String> info, HttpServletRequest request) {
+
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        CollectInfo collectInfo = new CollectInfo();
+        //保存用户名
+        collectInfo.setUsername(userName);
+        //保存答案
+        collectInfo.setAnswer(JSON.toJSONString(info));
+
+        return userService.collectInfo(collectInfo);
+
     }
 
 }

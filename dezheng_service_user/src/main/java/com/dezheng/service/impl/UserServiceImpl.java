@@ -2,8 +2,10 @@ package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.dezheng.dao.CollectInfoMapper;
 import com.dezheng.dao.SuggestMapper;
 import com.dezheng.dao.UserMapper;
+import com.dezheng.pojo.user.CollectInfo;
 import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
@@ -14,6 +16,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +31,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private SuggestMapper suggestMapper;
+
+    @Autowired
+    private CollectInfoMapper collectInfoMapper;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -263,4 +269,73 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Map<String, Object> collectInfo(CollectInfo info) {
+
+        //查询信息采集
+        CollectInfo searchCollectInfo = collectInfoMapper.selectByPrimaryKey(info.getUsername());
+
+        if (searchCollectInfo == null) { //当前用户没有信息采集
+
+            //获取起始时间
+            info.setStartTime(new Date());
+
+            //获取过期时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 1);
+            info.setExpireTime(calendar.getTime());
+
+            //设置状态
+            info.setStatus("1");
+            collectInfoMapper.insertSelective(info);
+        }
+
+        //获取创建时间和状态
+        Date startTime;
+        Date expireTime;
+        String status;
+        if (searchCollectInfo == null) {//数据库中没有则从初始值中找
+            startTime = info.getStartTime();
+            expireTime = info.getExpireTime();
+            status = info.getStatus();
+        } else { //数据库存在则在数据库中获取
+            startTime = searchCollectInfo.getStartTime();
+            expireTime = searchCollectInfo.getExpireTime();
+            status = searchCollectInfo.getStatus();
+        }
+
+        //当信息采集过期
+        if (status.equals("0")) {
+            //重新获取起始时间
+            searchCollectInfo.setStartTime(new Date());
+            //重新获取过期时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, 1);
+            searchCollectInfo.setExpireTime(calendar.getTime());
+            //设置状态为1
+            searchCollectInfo.setStatus("1");
+            collectInfoMapper.updateByPrimaryKeySelective(searchCollectInfo);
+        }
+
+        //获取答案
+        String answer = info.getAnswer();
+        //封装答案
+        Map<String, Object> answerMap = JSON.parseObject(answer, Map.class);
+        answerMap.put("createTime", startTime);
+
+
+        //判断是否过期
+        boolean isExpire = false;
+        Date currentTime = new Date();
+        if (currentTime.getTime() > expireTime.getTime()) {
+            isExpire = true;
+            searchCollectInfo.setStatus("0");
+            collectInfoMapper.updateByPrimaryKeySelective(searchCollectInfo);
+            answerMap.put("status", searchCollectInfo.getStatus());
+        }
+        if (isExpire == false) {
+            answerMap.put("status", status);
+        }
+        return answerMap;
+    }
 }
