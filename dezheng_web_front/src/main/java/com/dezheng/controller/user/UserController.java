@@ -139,4 +139,9 @@ public class UserController {
 
     }
 
+    @GetMapping("/findCollectInfo")
+    public Map<String, Object> findCollectInfo(HttpServletRequest request) {
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        return userService.findCollectInfo(userName);
+    }
 }

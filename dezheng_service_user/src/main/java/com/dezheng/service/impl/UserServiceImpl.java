@@ -275,67 +275,68 @@ public class UserServiceImpl implements UserService {
         //查询信息采集
         CollectInfo searchCollectInfo = collectInfoMapper.selectByPrimaryKey(info.getUsername());
 
-        if (searchCollectInfo == null) { //当前用户没有信息采集
-
+        //校验是否信息采集过期
+        if (searchCollectInfo != null) {
+            long currentTime = new Date().getTime();
+            if (currentTime > searchCollectInfo.getExpireTime().getTime()) { //信息采集过期,重新采集
+                //重新获取起始时间
+                searchCollectInfo.setStartTime(new Date());
+                //重新获取过期时间
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.MINUTE, 1);
+                searchCollectInfo.setExpireTime(calendar.getTime());
+                //设置状态为0
+                searchCollectInfo.setStatus("0");
+                collectInfoMapper.updateByPrimaryKeySelective(searchCollectInfo);
+                Map<String, Object> result = JSON.parseObject(searchCollectInfo.getAnswer(), Map.class);
+                result.put("createTime", searchCollectInfo.getStartTime());
+                result.put("status", searchCollectInfo.getStatus());
+                return result;
+            } else { //信息采集在有效期内
+                throw new RuntimeException("信息采集已提交,请勿重复提交");
+            }
+        } else { //还没填写信息采集
             //获取起始时间
             info.setStartTime(new Date());
-
             //获取过期时间
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, 1);
             info.setExpireTime(calendar.getTime());
-
             //设置状态
-            info.setStatus("1");
+            info.setStatus("0");
             collectInfoMapper.insertSelective(info);
+            //返回信息采集
+            Map<String, Object> result = JSON.parseObject(info.getAnswer(), Map.class);
+            result.put("createTime", info.getStartTime());
+            result.put("status", info.getStatus());
+            return result;
+        }
+    }
+
+
+    @Override
+    public Map<String, Object> findCollectInfo(String username) {
+
+        CollectInfo collectInfo = collectInfoMapper.selectByPrimaryKey(username);
+        //校验信息采集
+        if (collectInfo == null) {
+            throw new RuntimeException("您还没有填写信息采集");
         }
 
-        //获取创建时间和状态
-        Date startTime;
-        Date expireTime;
-        String status;
-        if (searchCollectInfo == null) {//数据库中没有则从初始值中找
-            startTime = info.getStartTime();
-            expireTime = info.getExpireTime();
-            status = info.getStatus();
-        } else { //数据库存在则在数据库中获取
-            startTime = searchCollectInfo.getStartTime();
-            expireTime = searchCollectInfo.getExpireTime();
-            status = searchCollectInfo.getStatus();
-        }
-
-        //当信息采集过期
-        if (status.equals("0")) {
-            //重新获取起始时间
-            searchCollectInfo.setStartTime(new Date());
-            //重新获取过期时间
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE, 1);
-            searchCollectInfo.setExpireTime(calendar.getTime());
-            //设置状态为1
-            searchCollectInfo.setStatus("1");
-            collectInfoMapper.updateByPrimaryKeySelective(searchCollectInfo);
-        }
-
-        //获取答案
-        String answer = info.getAnswer();
-        //封装答案
-        Map<String, Object> answerMap = JSON.parseObject(answer, Map.class);
-        answerMap.put("createTime", startTime);
-
-
-        //判断是否过期
-        boolean isExpire = false;
         Date currentTime = new Date();
-        if (currentTime.getTime() > expireTime.getTime()) {
-            isExpire = true;
-            searchCollectInfo.setStatus("0");
-            collectInfoMapper.updateByPrimaryKeySelective(searchCollectInfo);
-            answerMap.put("status", searchCollectInfo.getStatus());
+
+        if (currentTime.getTime() > collectInfo.getExpireTime().getTime()) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("status", "1");
+            result.put("massage", "信息采集已过期，请重新填写");
+            return result;
         }
-        if (isExpire == false) {
-            answerMap.put("status", status);
-        }
-        return answerMap;
+
+        String answer = collectInfo.getAnswer();
+        Map<String, Object> result = JSON.parseObject(answer, Map.class);
+
+        result.put("status", collectInfo.getStatus());
+        result.put("createTime", collectInfo.getStartTime());
+        return result;
     }
 }

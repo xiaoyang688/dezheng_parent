@@ -89,6 +89,15 @@ public interface UserService {
      */
     public void suggest(Suggest suggest);
 
+    /**
+     * 提交信息采集
+     * @param info
+     * @return
+     */
     public Map<String, Object> collectInfo(CollectInfo info);
 
+    /**
+     *
+     */
+    public Map<String, Object> findCollectInfo(String username);
 }
