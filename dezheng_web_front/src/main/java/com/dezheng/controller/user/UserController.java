@@ -2,6 +2,7 @@ package com.dezheng.controller.user;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSON;
+import com.aliyun.oss.OSSClient;
 import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.CollectInfo;
@@ -10,9 +11,14 @@ import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.AddressService;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +32,9 @@ public class UserController {
 
     @Reference
     private AddressService addressService;
+
+    @Autowired
+    private OSSClient ossClient;
 
     @GetMapping("/findAddressList")
     public List<Address> findAddressList(HttpServletRequest request) {
@@ -118,10 +127,12 @@ public class UserController {
     }
 
     @PostMapping("/suggest")
-    public Result suggest(@RequestBody Suggest suggest, HttpServletRequest request) {
+    public Result suggest(@RequestBody Map<String, Object> suggestMap, HttpServletRequest request) {
+
         String userName = userService.getUserName(request.getHeader("Authorization"));
-        suggest.setUsername(userName);
-        userService.suggest(suggest);
+        suggestMap.put("username", userName);
+
+        userService.suggest(suggestMap);
         return new Result(1, "您的宝贵意见我们已经收到");
     }
 
@@ -144,4 +155,31 @@ public class UserController {
         String userName = userService.getUserName(request.getHeader("Authorization"));
         return userService.findCollectInfo(userName);
     }
+
+    @PostMapping("/upload")
+    public String upload(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+
+        String bucketName = "xiaoyang688";
+        //获取文件名
+        String filename = file.getOriginalFilename();
+        //获取文件后缀
+        String suffix = filename.substring(filename.lastIndexOf("."), filename.length());
+        //获取时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date = sdf.format(new Date());
+
+        //拼接文件名
+        String uploadFile = "suggest/" + userName + "_" + date + suffix;
+
+        try {
+            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException("上传失败");
+        }
+
+        return "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
+    }
+
 }

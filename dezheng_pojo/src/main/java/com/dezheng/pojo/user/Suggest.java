@@ -11,6 +11,15 @@ public class Suggest implements Serializable {
     private String id;
     private String username;
     private String suggest;
+    private String image;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     public String getId() {
         return id;

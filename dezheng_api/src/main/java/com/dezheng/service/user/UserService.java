@@ -87,7 +87,7 @@ public interface UserService {
      *
      * @param suggest
      */
-    public void suggest(Suggest suggest);
+    public void suggest(Map<String, Object> suggestMap);
 
     /**
      * 提交信息采集
@@ -97,7 +97,7 @@ public interface UserService {
     public Map<String, Object> collectInfo(CollectInfo info);
 
     /**
-     *
+     *查询信息采集
      */
     public Map<String, Object> findCollectInfo(String username);
 }

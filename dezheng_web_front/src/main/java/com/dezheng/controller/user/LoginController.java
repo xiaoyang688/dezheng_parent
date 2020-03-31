@@ -5,8 +5,6 @@ import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -16,8 +14,6 @@ import java.util.Map;
 @RequestMapping("/login")
 public class LoginController {
 
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Reference
     private UserService userService;

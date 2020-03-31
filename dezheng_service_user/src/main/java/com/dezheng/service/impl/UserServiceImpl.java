@@ -2,6 +2,8 @@ package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.dezheng.dao.CollectInfoMapper;
 import com.dezheng.dao.SuggestMapper;
 import com.dezheng.dao.UserMapper;
@@ -12,11 +14,11 @@ import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
 import com.dezheng.utils.IdWorker;
 import com.dezheng.utils.JWTUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -261,12 +263,41 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void suggest(Suggest suggest) {
-        suggest.setId(idWorker.nextId() + "");
-        int i = suggestMapper.insert(suggest);
-        if (i < 1) {
-            throw new RuntimeException("提交失败");
+    public void suggest(Map<String, Object> suggestMap) {
+
+        //获取用户名
+        String username = (String) suggestMap.get("username");
+
+        //获取意见
+        String suggest = (String) suggestMap.get("suggest");
+        if (suggest == null || suggest.equals("")) {
+            throw new RuntimeException("意见不能为空");
         }
+
+        //获取上传图片链接
+        JSONArray imageList = (JSONArray) suggestMap.get("imageList");
+        if (imageList == null) {
+            imageList = new JSONArray();
+        }
+        List<String> images = new ArrayList<>();
+
+        for (Object image : imageList) {
+            Map map = JSONObject.parseObject(image.toString(), Map.class);
+            String url = (String) map.get("url");
+            images.add(url);
+        }
+        //清洗图片链接
+        String image = StringUtils.strip(images.toString(), "[]");
+
+        //持久化
+        Suggest saveSuggest = new Suggest();
+        saveSuggest.setId(idWorker.nextId() + "");
+        saveSuggest.setUsername(username);
+        saveSuggest.setSuggest(suggest);
+        saveSuggest.setImage(image);
+
+        suggestMapper.insert(saveSuggest);
+
     }
 
     @Override
