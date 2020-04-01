@@ -6,8 +6,8 @@ import com.aliyun.oss.OSSClient;
 import com.dezheng.entity.Result;
 import com.dezheng.pojo.user.Address;
 import com.dezheng.pojo.user.CollectInfo;
-import com.dezheng.pojo.user.Suggest;
 import com.dezheng.pojo.user.User;
+import com.dezheng.service.tulingBot.TuLingBotService;
 import com.dezheng.service.user.AddressService;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
@@ -32,6 +32,9 @@ public class UserController {
 
     @Reference
     private AddressService addressService;
+
+    @Reference
+    private TuLingBotService tuLingBotService;
 
     @Autowired
     private OSSClient ossClient;
@@ -180,6 +183,13 @@ public class UserController {
         }
 
         return "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
+    }
+
+    @PostMapping("/chatBot")
+    public Map chatBot(@RequestBody Map<String, String> question, HttpServletRequest request) {
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        question.put("username", userName);
+        return tuLingBotService.getAnswer(question);
     }
 
 }
