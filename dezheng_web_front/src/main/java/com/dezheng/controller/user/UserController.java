@@ -168,7 +168,7 @@ public class UserController {
         //获取文件名
         String filename = file.getOriginalFilename();
         //获取文件后缀
-        String suffix = filename.substring(filename.lastIndexOf("."), filename.length());
+        String suffix = filename.substring(filename.lastIndexOf("."));
         //获取时间
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = sdf.format(new Date());

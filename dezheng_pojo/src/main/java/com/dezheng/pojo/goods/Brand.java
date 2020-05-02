@@ -10,8 +10,6 @@ public class Brand implements Serializable {
     @Id
     private Integer id;
     private String name;
-    private String image;
-    private Integer seq;
 
     public Integer getId() {
         return id;
@@ -29,29 +27,4 @@ public class Brand implements Serializable {
         this.name = name;
     }
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public Integer getSeq() {
-        return seq;
-    }
-
-    public void setSeq(Integer seq) {
-        this.seq = seq;
-    }
-
-    @Override
-    public String toString() {
-        return "Brand{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", image='" + image + '\'' +
-                ", seq=" + seq +
-                '}';
-    }
 }

@@ -48,15 +48,12 @@ public class IndexServiceImpl implements IndexService {
             skuMap.put("id", sku.getId());
             skuMap.put("name", sku.getName());
             skuMap.put("image", sku.getImage());
-            skuMap.put("brandName", sku.getBrandName());
-            skuMap.put("categoryName", sku.getCategory2Name());
             skuMap.put("price", sku.getPrice());
-            skuMap.put("createTime", sku.getCreateTime());
             skuMap.put("saleNum", sku.getSaleNum());
             skuMap.put("commentNum", sku.getCommentNum());
-            System.out.println(sku.getSpec());
-            skuMap.put("spec", JSONObject.parseObject(sku.getSpec(), Map.class));
-            System.out.println("==========> 循环中");
+            skuMap.put("businessMode", sku.getBusinessMode());
+            skuMap.put("brandName", sku.getBrandName());
+            skuMap.put("categoryName", sku.getCategory2Name());
             indexRequest.source(skuMap);
             bulkRequest.add(indexRequest);
         }

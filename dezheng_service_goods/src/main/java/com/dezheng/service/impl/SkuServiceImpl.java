@@ -1,6 +1,7 @@
 package com.dezheng.service.impl;
 
 import com.alibaba.dubbo.config.annotation.Service;
+import com.alibaba.fastjson.JSON;
 import com.dezheng.dao.SkuMapper;
 import com.dezheng.dao.SpuMapper;
 import com.dezheng.pojo.goods.Sku;
@@ -29,6 +30,7 @@ public class SkuServiceImpl implements SkuService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Override
     public Map findSkuByIdAtRedis(String id) {
 
         Map item = (Map) redisTemplate.boundHashOps(CacheKey.SkuItem).get(id);
@@ -86,7 +88,11 @@ public class SkuServiceImpl implements SkuService {
             String introduction = spu.getIntroduction();
 
             //获取规格
-            String spec = sku.getSpec();
+            String spec = "";
+            Map specMap = JSON.parseObject(sku.getSpec(), Map.class);
+            for (Object value : specMap.values()) {
+                spec += value + " ";
+            }
 
             //详情图片
             String details = spu.getDetails();

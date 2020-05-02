@@ -15,6 +15,7 @@ public class PullGoodsListen implements ChannelAwareMessageListener {
     @Override
     public void onMessage(Message message, Channel channel) throws Exception {
         String msg = new String(message.getBody());
+        System.out.println(msg);
         String[] spuIdList = JSON.parseObject(msg, String[].class);
 
         String status = indexService.delIndex(spuIdList);

@@ -35,7 +35,7 @@ public class LoginController {
     }
 
     @PostMapping("/signIn")
-    private Map signIn(@RequestBody User user) {
+    public Map signIn(@RequestBody User user) {
 
         Map userInfo = new HashMap();
 

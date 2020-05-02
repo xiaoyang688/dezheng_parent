@@ -89,7 +89,7 @@ public class SpuServiceImpl implements SpuService {
             sku.setName(spu.getName() + spec);
             sku.setImage(sku.getImage());
             sku.setImageItems(sku.getImageItems());
-            sku.setBusinessMode(sku.getBusinessMode());
+            sku.setBusinessMode(brand.getName() + "旗舰店");
 
             sku.setCreateTime(new Date());
             sku.setUpdateTime(new Date());
@@ -99,7 +99,8 @@ public class SpuServiceImpl implements SpuService {
             //查询分类Id2名称
             Category category = categoryMapper.selectByPrimaryKey(spu.getCategory2Id());
             sku.setCategory2Name(category.getName());
-            sku.setSpec(specMap.toString());
+            sku.setBrandName(brand.getName());
+            sku.setSpec(JSON.toJSONString(specMap));
             sku.setPrice(sku.getPrice());
             sku.setNum(sku.getNum());
             sku.setAlertNum(sku.getAlertNum());

@@ -22,6 +22,11 @@ public class TuLingBotServiceImpl implements TuLingBotService {
     public static final MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
     public static final String url = "http://openapi.tuling123.com/openapi/api/v2";
 
+    /**
+     * 获取机器人答案
+     * @param question
+     * @return
+     */
     @Override
     public Map<String, Object> getAnswer(Map<String, String> question) {
         Map<String, Object> result = null;
@@ -49,12 +54,12 @@ public class TuLingBotServiceImpl implements TuLingBotService {
      *
      * @return
      */
-    public List<String> getApiList() {
+    private List<String> getApiList() {
         List<String> apiList = new ArrayList<>();
-        apiList.add("bf4d1fdd260b4baeb84205c700f96623");
+        /*apiList.add("bf4d1fdd260b4baeb84205c700f96623");
         apiList.add("c7b5e34e983d4415bb745a5b1e115340");
         apiList.add("ba8c88095d544440953b9f94974dc815");
-        apiList.add("65cde0c1c83d46fea21add86d26fd516");
+        apiList.add("65cde0c1c83d46fea21add86d26fd516");*/
         apiList.add("1184dd3ca6b545c1ad64169c18c90fba");
         return apiList;
     }

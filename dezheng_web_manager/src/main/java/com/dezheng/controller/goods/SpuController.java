@@ -27,20 +27,20 @@ public class SpuController {
     }
 
     @PostMapping("/saveGoods")
-    private Result saveGoods(@RequestBody Goods goods) {
+    public Result saveGoods(@RequestBody Goods goods) {
         spuService.saveGoods(goods);
         return new Result();
     }
 
     @GetMapping("/pull")
-    private Result pullGoods(String[] ids) {
+    public Result pullGoods(String[] ids) {
         spuService.pushOrPull(ids, "0");
         return new Result(1, "下架成功");
     }
 
 
     @GetMapping("/push")
-    private Result pushGoods(String[] ids) {
+    public Result pushGoods(String[] ids) {
 
         for (String id : ids) {
             System.out.println(id);

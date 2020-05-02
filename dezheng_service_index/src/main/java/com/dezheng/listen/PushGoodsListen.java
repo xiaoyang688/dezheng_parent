@@ -15,9 +15,9 @@ public class PushGoodsListen implements ChannelAwareMessageListener {
     @Override
     public void onMessage(Message message, Channel channel) throws Exception {
         String s = new String(message.getBody());
+        System.out.println(s);
         String[] ids = JSON.parseObject(s, String[].class);
         String status = indexService.addIndex(ids);
         System.out.println(status);
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
 }
