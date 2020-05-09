@@ -116,7 +116,7 @@ public class OrderServiceImpl implements OrderService {
         Integer payMoney = payMoneyStream.sum();
         Integer totalMoney = payMoney;
         if (payMoney < 4900) {
-            totalMoney = payMoney + 0;
+            totalMoney = payMoney + 800;
         }
         order.setPayMoney(payMoney);
         order.setTotalMoney(totalMoney);

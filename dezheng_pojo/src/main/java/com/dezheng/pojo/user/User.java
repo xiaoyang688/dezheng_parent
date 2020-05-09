@@ -12,23 +12,11 @@ public class User implements Serializable {
     private String username;
     private String password;
     private String phone;
-    private String email;
     private Date createTime;
     private Date updateTime;
-    private String nickName;
-    private String realName;
     private String headPic;
-    private String sex;
-    private Date birthday;
     private String code;
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
+    private String faceToken;
 
     public String getUsername() {
         return username;
@@ -54,14 +42,6 @@ public class User implements Serializable {
         this.phone = phone;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
@@ -78,22 +58,6 @@ public class User implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public String getNickName() {
-        return nickName;
-    }
-
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
-    }
-
-    public String getRealName() {
-        return realName;
-    }
-
-    public void setRealName(String realName) {
-        this.realName = realName;
-    }
-
     public String getHeadPic() {
         return headPic;
     }
@@ -102,20 +66,19 @@ public class User implements Serializable {
         this.headPic = headPic;
     }
 
-    public String getSex() {
-        return sex;
+    public String getCode() {
+        return code;
     }
 
-    public void setSex(String sex) {
-        this.sex = sex;
+    public void setCode(String code) {
+        this.code = code;
     }
 
-    public Date getBirthday() {
-        return birthday;
+    public String getFaceToken() {
+        return faceToken;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setFaceToken(String faceToken) {
+        this.faceToken = faceToken;
     }
-
 }

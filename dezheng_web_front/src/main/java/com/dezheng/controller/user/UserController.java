@@ -9,6 +9,7 @@ import com.dezheng.pojo.user.CollectInfo;
 import com.dezheng.pojo.user.User;
 import com.dezheng.service.tulingBot.TuLingBotService;
 import com.dezheng.service.user.AddressService;
+import com.dezheng.service.user.FaceAccessService;
 import com.dezheng.service.user.UserService;
 import com.dezheng.utils.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,9 @@ public class UserController {
 
     @Reference
     private TuLingBotService tuLingBotService;
+
+    @Reference
+    private FaceAccessService faceAccessService;
 
     @Autowired
     private OSSClient ossClient;
@@ -190,6 +194,74 @@ public class UserController {
         String userName = userService.getUserName(request.getHeader("Authorization"));
         question.put("username", userName);
         return tuLingBotService.getAnswer(question);
+    }
+
+    @PostMapping("/addFace")
+    public Result addFace(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+
+        String bucketName = "xiaoyang688";
+        //获取文件名
+        String filename = file.getOriginalFilename();
+        //获取文件后缀
+        String suffix = filename.substring(filename.lastIndexOf("."));
+        //获取时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date = sdf.format(new Date());
+
+        //拼接文件名
+        String uploadFile = "addFace/" + userName + "_" + date + suffix;
+
+        try {
+            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException("上传失败");
+        }
+
+        String imageUrl = "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
+
+        faceAccessService.addFace(userName, imageUrl);
+
+        return new Result(1, "人脸录入成功");
+    }
+
+    @GetMapping("/deleteFace")
+    public Result deleteFace(HttpServletRequest request) {
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        faceAccessService.deleteFace(userName);
+        return new Result(1, "删除成功");
+    }
+
+    @PostMapping("/updateFace")
+    public Result updateFace(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+
+        String bucketName = "xiaoyang688";
+        //获取文件名
+        String filename = file.getOriginalFilename();
+        //获取文件后缀
+        String suffix = filename.substring(filename.lastIndexOf("."));
+        //获取时间
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date = sdf.format(new Date());
+
+        //拼接文件名
+        String uploadFile = "addFace/" + userName + "_" + date + suffix;
+
+        try {
+            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException("上传失败");
+        }
+
+        String imageUrl = "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
+
+        faceAccessService.deleteFace(userName);
+        faceAccessService.addFace(userName, imageUrl);
+
+        return new Result(1, "人脸更新成功");
     }
 
 }

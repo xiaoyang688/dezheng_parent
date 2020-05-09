@@ -57,6 +57,7 @@ public class SkuServiceImpl implements SkuService {
         return sku;
     }
 
+    @Override
     public void saveAllSkuItemToRedis() {
         List<Sku> skuList = skuMapper.selectAll();
         for (Sku sku : skuList) {
@@ -84,6 +85,7 @@ public class SkuServiceImpl implements SkuService {
 
             //说明书
             String spuId = sku.getSpuId();
+            System.out.println(spuId);
             Spu spu = spuMapper.selectByPrimaryKey(spuId);
             String introduction = spu.getIntroduction();
 

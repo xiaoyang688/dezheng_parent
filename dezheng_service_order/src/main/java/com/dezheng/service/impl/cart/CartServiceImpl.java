@@ -137,6 +137,7 @@ public class CartServiceImpl implements CartService {
         addCart(username, skuId, 1);
     }
 
+    @Override
     public List<OrderItem> selectedCartList(String username) {
         List<Map<String, Object>> cartList = findCartList(username);
         List<OrderItem> selectedOrderItem = cartList.stream().filter(cart -> cart.get("checkout").equals(true))

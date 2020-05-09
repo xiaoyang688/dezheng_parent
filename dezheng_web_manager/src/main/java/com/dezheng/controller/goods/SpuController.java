@@ -32,15 +32,15 @@ public class SpuController {
         return new Result();
     }
 
-    @GetMapping("/pull")
-    public Result pullGoods(String[] ids) {
+    @PostMapping("/pull")
+    public Result pullGoods(@RequestBody String[] ids) {
         spuService.pushOrPull(ids, "0");
         return new Result(1, "下架成功");
     }
 
 
-    @GetMapping("/push")
-    public Result pushGoods(String[] ids) {
+    @PostMapping("/push")
+    public Result pushGoods(@RequestBody String[] ids) {
 
         for (String id : ids) {
             System.out.println(id);
