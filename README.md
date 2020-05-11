@@ -213,4 +213,4 @@ service rabbitmq-server status
 * ##### 方式一：将所有dezheng_service_XXXXX 通过 mvn install 命令打包 然后放入tomcat中webapp 启动tomcat
 * ##### 方式二：在IntelliJ IDEA右侧工具栏中找到Maven,比如点击子模块dezheng_service_goods ==》Plugins ==》tomcat7 ==》tomcat7:run
 ## 4.项目运行
-* ##### http:localhost:9102
+* ##### http://localhost:9102
