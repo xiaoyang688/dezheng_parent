@@ -34,21 +34,21 @@ public class FaceAccessServiceImpl implements FaceAccessService {
 
     private static final String API_SECRET = "UYWAR2bJyWLuLRyPC3B04pHEWErpF6h5";
 
-    private static final String FACESET_TOKEN = "4a4457525029702b5c178a44c9a6a3c2";
+    private static final String FACESET_TOKEN = "6d6f5ea34e69e36a1644d06180f5011a";
 
     /**
      * 检测人脸
      *
-     * @param imageUrl
+     * @param image_base64
      * @return
      */
-    private String detect(String imageUrl) {
+    private String getFaceToken(String image_base64) {
 
         //post方式提交的数据
         FormBody formBody = new FormBody.Builder()
                 .add("api_key", API_KEY)
                 .add("api_secret", API_SECRET)
-                .add("image_url", imageUrl)
+                .add("image_base64", image_base64)
                 .build();
 
         final Request request = new Request.Builder()
@@ -70,15 +70,46 @@ public class FaceAccessServiceImpl implements FaceAccessService {
         }
     }
 
+    /**
+     *创建人脸集合
+     * @return
+     */
+   /* public String getFaceSet() {
+
+        //post方式提交的数据
+        FormBody formBody = new FormBody.Builder()
+                .add("api_key", API_KEY)
+                .add("api_secret", API_SECRET)
+                .build();
+
+        final Request request = new Request.Builder()
+                .url("https://api-cn.faceplusplus.com/facepp/v3/faceset/create")//请求的url
+                .post(formBody)
+                .build();
+
+        try {
+            Response response = okHttpClient.newCall(request).execute();
+            String resp = response.body().string();
+            JSONObject respJson = JSONObject.parseObject(resp);
+            String faceSet = (String) respJson.get("faceset_token");
+            return faceSet;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+*/
     @Override
-    public void addFace(String username, String imageUrl) {
+    public void addFace(String username, String image_base64) {
 
         User searchUser = userMapper.selectByPrimaryKey(username);
-        if (!"".equals(searchUser.getFaceToken()) || searchUser.getFaceToken() == null) {
+
+        if (searchUser.getFaceToken() != null) {
             throw new RuntimeException("人脸已录入，请勿重复录入");
         }
 
-        String faceToken = detect(imageUrl);
+        String faceToken = getFaceToken(image_base64);
+
         //post方式提交的数据
         FormBody formBody = new FormBody.Builder()
                 .add("api_key", API_KEY)
@@ -105,14 +136,14 @@ public class FaceAccessServiceImpl implements FaceAccessService {
     }
 
     @Override
-    public FaceResult searchFace(String imageUrl) {
+    public FaceResult searchFace(String image_base64) {
 
         //post方式提交的数据
         FormBody formBody = new FormBody.Builder()
                 .add("api_key", API_KEY)
                 .add("api_secret", API_SECRET)
                 .add("faceset_token", FACESET_TOKEN)
-                .add("image_url", imageUrl)
+                .add("image_base64", image_base64)
                 .build();
 
         final Request request = new Request.Builder()
@@ -155,10 +186,11 @@ public class FaceAccessServiceImpl implements FaceAccessService {
         //通过用户名查找faceToken
         User user = userMapper.selectByPrimaryKey(username);
         String faceToken;
+        System.out.println(user.getFaceToken());
         if (!"".equals(user.getFaceToken())) {
             faceToken = user.getFaceToken();
-            user.setFaceToken("");
-            userMapper.updateByPrimaryKeySelective(user);
+            user.setFaceToken(null);
+            userMapper.updateByPrimaryKey(user);
         } else {
             throw new RuntimeException("当前用户没用录入人脸数据");
         }

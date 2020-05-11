@@ -2,3 +2,5 @@ dezheng_parent.iml
 .idea/
 dezheng*/target/
 dezheng*/dezheng*.iml
+.DS_Store
+.gitignore

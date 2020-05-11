@@ -8,7 +8,7 @@ public interface FaceAccessService {
      * 添加faceToken到faceSet
      * @param username
      */
-    public void addFace(String username, String imageUrl);
+    public void addFace(String username, String image_base64);
 
     /**
      * 搜索人脸库
@@ -20,4 +20,5 @@ public interface FaceAccessService {
      * 删除人脸
      */
     public void deleteFace(String username);
+
 }

@@ -43,6 +43,9 @@
                 <groupId>org.apache.tomcat.maven</groupId>
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <configuration>
+                    <httpsPort>8443</httpsPort>
+                    <keystoreFile>/Users/xiaoyang/Desktop/tomcat.keystore</keystoreFile>
+                    <keystorePass>123456</keystorePass>
                     <!-- 指定端口 -->
                     <port>9102</port>
                     <!-- 请求路径 -->

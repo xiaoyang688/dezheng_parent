@@ -68,32 +68,13 @@ public class LoginController {
     }
 
     @PostMapping("/faceLogin")
-    public Map faceLogin(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public Map faceLogin(@RequestParam("file") String image_base64, HttpServletRequest request) {
 
-        String bucketName = "xiaoyang688";
-        //获取文件名
-        String filename = file.getOriginalFilename();
-        //获取文件后缀
-        String suffix = filename.substring(filename.lastIndexOf("."));
-        //获取时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String date = sdf.format(new Date());
-
-        //拼接文件名
-        String uploadFile = "faceMatch/" + date + suffix;
-
-        try {
-            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException("上传失败");
-        }
-
-        String imageUrl = "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
-
-        FaceResult faceResult = faceAccessService.searchFace(imageUrl);
+        FaceResult faceResult = faceAccessService.searchFace(image_base64);
         //相识度达到80%
         Map map = new HashMap();
-        int i = faceResult.getConfidence().compareTo(new BigDecimal(80));
+        System.out.println(faceResult.getConfidence());
+        int i = faceResult.getConfidence().compareTo(new BigDecimal(75));
         if (i == 1) {
             Map userInfo = userService.getUserInfo(faceResult.getUserName());
             return userInfo;

@@ -21,7 +21,6 @@
         <module>dezheng_service_user</module>
         <module>dezheng_service_sms</module>
         <module>dezheng_service_index</module>
-        <module>dezheng_service_seckill</module>
         <module>dezheng_service_tulingBot</module>
     </modules>
 

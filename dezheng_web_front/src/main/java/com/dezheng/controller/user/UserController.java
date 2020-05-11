@@ -15,9 +15,12 @@ import com.dezheng.utils.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -197,31 +200,13 @@ public class UserController {
     }
 
     @PostMapping("/addFace")
-    public Result addFace(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public Result addFace(@RequestParam("file") String file, HttpServletRequest request) {
 
         String userName = userService.getUserName(request.getHeader("Authorization"));
 
-        String bucketName = "xiaoyang688";
-        //获取文件名
-        String filename = file.getOriginalFilename();
-        //获取文件后缀
-        String suffix = filename.substring(filename.lastIndexOf("."));
-        //获取时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String date = sdf.format(new Date());
+        System.out.println(file);
 
-        //拼接文件名
-        String uploadFile = "addFace/" + userName + "_" + date + suffix;
-
-        try {
-            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException("上传失败");
-        }
-
-        String imageUrl = "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
-
-        faceAccessService.addFace(userName, imageUrl);
+        faceAccessService.addFace(userName, file);
 
         return new Result(1, "人脸录入成功");
     }
@@ -262,6 +247,19 @@ public class UserController {
         faceAccessService.addFace(userName, imageUrl);
 
         return new Result(1, "人脸更新成功");
+    }
+
+
+    private static InputStream BaseToInputStream(String base64string) {
+        ByteArrayInputStream stream = null;
+        try {
+            BASE64Decoder decoder = new BASE64Decoder();
+            byte[] bytes1 = decoder.decodeBuffer(base64string);
+            stream = new ByteArrayInputStream(bytes1);
+        } catch (Exception e) {
+            throw new RuntimeException("转化失败");
+        }
+        return stream;
     }
 
 }
