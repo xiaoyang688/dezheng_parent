@@ -1,37 +1,37 @@
 ## 1.代码结构
 ```
-├── dezheng_api								#存放所有接口
+├── dezheng_api							#存放所有接口
 │   ├── pom.xml
 │   └── src
 ├── dezheng_common						#公共模块
 │   ├── pom.xml
 │   └── src
-├── dezheng_common_service			#公共服务模块
+├── dezheng_common_service			    #公共服务模块
 │   ├── pom.xml
 │   └── src
-├── dezheng_common_web				#公共Web模块
+├── dezheng_common_web				    #公共Web模块
 │   ├── pom.xml
 │   └── src
 ├── dezheng_parent.iml
 ├── dezheng_pojo
 │   ├── pom.xml
 │   └── src
-├── dezheng_service_business			#广告服务
+├── dezheng_service_business			    #广告服务
 │   ├── pom.xml
 │   └── src
-├── dezheng_service_goods				#商品服务
+├── dezheng_service_goods				    #商品服务
 │   ├── pom.xml
 │   └── src
-├── dezheng_service_index				#更新索引服务
+├── dezheng_service_index				    #更新索引服务
 │   ├── pom.xml
 │   └── src
-├── dezheng_service_order				#订单服务
+├── dezheng_service_order				    #订单服务
 │   ├── pom.xml
 │   └── src
 ├── dezheng_service_sms					#短信服务
 │   ├── pom.xml
 │   └── src
-├── dezheng_service_tulingBot			#智能对话服务
+├── dezheng_service_tulingBot			    #智能对话服务
 │   ├── pom.xml
 │   └── src
 ├── dezheng_service_user					#用户服务
@@ -46,7 +46,7 @@
 ├── pom.xml
 ├── README.md
 └── sql
-    └── BackUpSql.sql							#数据库文件
+    └── BackUpSql.sql						#数据库文件
 ```
 ## 2.安装服务软件
 
@@ -205,12 +205,12 @@ service rabbitmq-server status
 ```
 
 ## 3.部署方法
-* #####（一）导入sql文件到数据库，并在每个service子模块中的database.properties配置数据库连接信息
-* #####（二）修改dezheng_common模块中的zookeeper.properties修改为当前已部署的ip和端口
-* #####（三）修改dezheng_common_service模块中的elasticseach.properties、redis.properties修改为当前已部署的ip和端口
+* ##### 1.导入sql文件到数据库，并在每个service子模块中的database.properties配置数据库连接信息
+* ##### 2.修改dezheng_common模块中的zookeeper.properties修改为当前已部署的ip和端口
+* ##### 3.修改dezheng_common_service模块中的elasticseach.properties、redis.properties修改为当前已部署的ip和端口
 
-## 4.项目启动
+## 5.项目启动
 * ##### 方式一：将所有dezheng_service_XXXXX 通过 mvn install 命令打包 然后放入tomcat中webapp 启动tomcat
 * ##### 方式二：在IntelliJ IDEA右侧工具栏中找到Maven,比如点击子模块dezheng_service_goods ==》Plugins ==》tomcat7 ==》tomcat7:run
-## 4.项目运行
+## 5.项目运行
 * ##### http://localhost:9102
