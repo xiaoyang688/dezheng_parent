@@ -11,6 +11,7 @@
     <!--描绘video截图-->
     <canvas id="canvas" width="480" height="320"></canvas>
 </div>
+
 <script>
     var video = document.getElementById('video');
     var canvas = document.getElementById('canvas');
@@ -50,16 +51,12 @@
             img=img.split(',')[1]
             //将照片以base64用ajax传到后台
             $.post({
-                url:'/getface',
+                url:'http://test.xiaoyang666.top/login/faceLogin.do',
                 data:{
                     message:img
                 },
-                success:function (callback) {
-                    if(callback=='no'){
-                        postFace()
-                    }else {
-                        window.location.href=callback
-                    }
+                success:function (data) {
+                   alert(data)
                 },
                 error:function (callback) {
                     postFace()
@@ -73,5 +70,6 @@
         alert('你的浏览器不支持访问用户媒体设备');
     }
 </script>
+
 </body>
 </html>
