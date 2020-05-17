@@ -11,6 +11,7 @@ import com.dezheng.service.tulingBot.TuLingBotService;
 import com.dezheng.service.user.AddressService;
 import com.dezheng.service.user.FaceAccessService;
 import com.dezheng.service.user.UserService;
+import com.dezheng.service.wulaiBot.WuLaiBotService;
 import com.dezheng.utils.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -35,56 +36,10 @@ public class UserController {
     private UserService userService;
 
     @Reference
-    private AddressService addressService;
-
-    @Reference
     private TuLingBotService tuLingBotService;
-
-    @Reference
-    private FaceAccessService faceAccessService;
 
     @Autowired
     private OSSClient ossClient;
-
-    @GetMapping("/findAddressList")
-    public List<Address> findAddressList(HttpServletRequest request) {
-        String userName = userService.getUserName(request.getHeader("Authorization"));
-        return addressService.findAddressList(userName);
-    }
-
-    @PostMapping("/addAddress")
-    public Result addAddress(@RequestBody Address address, HttpServletRequest request) {
-        String username = userService.getUserName(request.getHeader("Authorization"));
-        address.setUsername(username);
-        addressService.addAddress(address);
-        return new Result(1, "添加成功");
-    }
-
-    @GetMapping("/updateDefaultAddress")
-    public Result updateDefaultAddress(HttpServletRequest request, String id) {
-        String username = userService.getUserName(request.getHeader("Authorization"));
-        System.out.println("进入此方法");
-        addressService.updateDefAddress(username, id);
-        return new Result(1, "更新成功");
-    }
-
-    @GetMapping("/deleteAddress")
-    public Result deleteAddress(String id) {
-        addressService.deleteAddress(id);
-        return new Result(1, "删除成功");
-    }
-
-    @GetMapping("/findAddressById")
-    public Address findAddressById(String id) {
-        Address address = addressService.findAddressById(id);
-        return address;
-    }
-
-    @PostMapping("/updateAddress")
-    public Result updateAddress(@RequestBody Address address) {
-        addressService.updateAddress(address);
-        return new Result(1, "修改成功");
-    }
 
     @GetMapping("/getUsername")
     public Map getUsername(HttpServletRequest request) {
@@ -197,69 +152,6 @@ public class UserController {
         String userName = userService.getUserName(request.getHeader("Authorization"));
         question.put("username", userName);
         return tuLingBotService.getAnswer(question);
-    }
-
-    @PostMapping("/addFace")
-    public Result addFace(@RequestParam("file") String file, HttpServletRequest request) {
-
-        String userName = userService.getUserName(request.getHeader("Authorization"));
-
-        System.out.println(file);
-
-        faceAccessService.addFace(userName, file);
-
-        return new Result(1, "人脸录入成功");
-    }
-
-    @GetMapping("/deleteFace")
-    public Result deleteFace(HttpServletRequest request) {
-        String userName = userService.getUserName(request.getHeader("Authorization"));
-        faceAccessService.deleteFace(userName);
-        return new Result(1, "删除成功");
-    }
-
-    @PostMapping("/updateFace")
-    public Result updateFace(@RequestParam("file") MultipartFile file, HttpServletRequest request) {
-
-        String userName = userService.getUserName(request.getHeader("Authorization"));
-
-        String bucketName = "xiaoyang688";
-        //获取文件名
-        String filename = file.getOriginalFilename();
-        //获取文件后缀
-        String suffix = filename.substring(filename.lastIndexOf("."));
-        //获取时间
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        String date = sdf.format(new Date());
-
-        //拼接文件名
-        String uploadFile = "addFace/" + userName + "_" + date + suffix;
-
-        try {
-            ossClient.putObject(bucketName, uploadFile, file.getInputStream());
-        } catch (IOException e) {
-            throw new RuntimeException("上传失败");
-        }
-
-        String imageUrl = "https://" + bucketName + ".oss-cn-beijing.aliyuncs.com/" + uploadFile;
-
-        faceAccessService.deleteFace(userName);
-        faceAccessService.addFace(userName, imageUrl);
-
-        return new Result(1, "人脸更新成功");
-    }
-
-
-    private static InputStream BaseToInputStream(String base64string) {
-        ByteArrayInputStream stream = null;
-        try {
-            BASE64Decoder decoder = new BASE64Decoder();
-            byte[] bytes1 = decoder.decodeBuffer(base64string);
-            stream = new ByteArrayInputStream(bytes1);
-        } catch (Exception e) {
-            throw new RuntimeException("转化失败");
-        }
-        return stream;
     }
 
 }
