@@ -186,6 +186,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getUserName(String token) {
         System.out.println(token);
+        if (token == null) {
+            throw new RuntimeException("用户未登录");
+        }
         token = token.replace("Bearer ", "");
         return JWTUtils.vaildToken(token);
     }
