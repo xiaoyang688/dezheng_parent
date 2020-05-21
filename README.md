@@ -1,53 +1,6 @@
 ## 1.代码结构
-```
-├── dezheng_api					#存放所有接口
-│   ├── pom.xml
-│   └── src
-├── dezheng_common				#公共模块
-│   ├── pom.xml
-│   └── src
-├── dezheng_common_service	                #公共服务模块
-│   ├── pom.xml
-│   └── src
-├── dezheng_common_web				#公共Web模块
-│   ├── pom.xml
-│   └── src
-├── dezheng_parent.iml
-├── dezheng_pojo
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_business		        #广告服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_goods		        #商品服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_index			#更新索引服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_order		        #订单服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_sms			        #短信服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_tulingBot			#智能对话服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_service_user			#用户服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_web_front			        #前台服务
-│   ├── pom.xml
-│   └── src
-├── dezheng_web_manager			        #后台管理
-│   ├── pom.xml
-│   └── src
-├── pom.xml
-├── README.md
-└── sql
-    └── BackUpSql.sql				#数据库文件
-```
+![avatar](
+https://xiaoyang688.oss-cn-beijing.aliyuncs.com/jsjds/%E6%80%9D%E8%B7%AF.png)
 ## 2.安装服务软件
 
 #### 2.1 redis 安装
