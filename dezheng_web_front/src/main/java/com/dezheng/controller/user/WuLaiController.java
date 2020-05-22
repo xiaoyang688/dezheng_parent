@@ -56,7 +56,7 @@ public class WuLaiController {
     }
 
     @PostMapping("/wulaiBot/sendMessage")
-    public Result sendMessage(@RequestParam(value = "file", required = false) MultipartFile file, @RequestBody(required = false) String question, HttpServletRequest request) {
+    public void sendMessage(@RequestParam(value = "file", required = false) MultipartFile file, @RequestBody(required = false) String question, HttpServletRequest request) {
         if (file == null && question == null) {
             throw new RuntimeException("请求参数不能为空！");
         }
@@ -75,7 +75,6 @@ public class WuLaiController {
             question = (String) questionJson.get("question");
         }
         wuLaiBotService.receiveMessage(userName, question);
-        return new Result(1, "发送成功");
     }
 
 }

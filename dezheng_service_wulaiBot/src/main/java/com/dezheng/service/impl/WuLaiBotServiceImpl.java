@@ -98,6 +98,11 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
     @Override
     public void sendMessage(Map message) {
         JSONObject messageJson = new JSONObject(message);
+        JSONObject sender_info = (JSONObject) messageJson.get("sender_info");
+        System.out.println(sender_info);
+        if (sender_info.get("avatar_url") != null) {
+            return;
+        }
         JSONObject msgBody = (JSONObject) messageJson.get("msg_body");
         JSONObject textJson = (JSONObject) msgBody.get("text");
         String content = (String) textJson.get("content");
