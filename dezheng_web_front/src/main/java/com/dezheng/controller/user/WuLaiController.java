@@ -2,7 +2,6 @@ package com.dezheng.controller.user;
 
 import com.alibaba.dubbo.config.annotation.Reference;
 import com.alibaba.fastjson.JSONObject;
-import com.dezheng.entity.Result;
 import com.dezheng.service.user.UserService;
 import com.dezheng.service.wulaiBot.WuLaiBotService;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +28,7 @@ public class WuLaiController {
         wuLaiBotService.createUser(userName);
     }
 
-    @PostMapping("/wulaiBot/getAnswer")
+    @PostMapping("/wulaiBot/getDoctorAnswer")
     public Map getAnswer(@RequestParam(value = "file", required = false) MultipartFile file, @RequestBody(required = false) String question, HttpServletRequest request) {
         if (file == null && question == null) {
             throw new RuntimeException("请求参数不能为空！");
@@ -48,7 +47,33 @@ public class WuLaiController {
             JSONObject questionJson = JSONObject.parseObject(question);
             question = (String) questionJson.get("question");
         }
-        String answer = wuLaiBotService.getAnswer(userName, question);
+        String answer = wuLaiBotService.getAnswer(userName, question, "doctor");
+        //获取答案
+        Map map = new HashMap();
+        map.put("answer", answer);
+        return map;
+    }
+
+    @PostMapping("/wulaiBot/getCustomerAnswer")
+    public Map getCustomerAnswer(@RequestParam(value = "file", required = false) MultipartFile file, @RequestBody(required = false) String question, HttpServletRequest request) {
+        if (file == null && question == null) {
+            throw new RuntimeException("请求参数不能为空！");
+        }
+        String userName = userService.getUserName(request.getHeader("Authorization"));
+        //创建用户
+        wuLaiBotService.createUser(userName);
+        //判断用户是否发送语音
+        if (file != null) {
+            try {
+                question = wuLaiBotService.voiceToText(file.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException("转换字节流失败");
+            }
+        } else {
+            JSONObject questionJson = JSONObject.parseObject(question);
+            question = (String) questionJson.get("question");
+        }
+        String answer = wuLaiBotService.getAnswer(userName, question, "customer");
         //获取答案
         Map map = new HashMap();
         map.put("answer", answer);

@@ -12,12 +12,12 @@ public interface WuLaiBotService {
 
     /**
      * 获取机器人回复
-     *
      * @param username
      * @param question
+     * @param type
      * @return
      */
-    public String getAnswer(String username, String question);
+    public String getAnswer(String username, String question, String type);
 
     /**
      * 获取人工服务消息,发送message给前端

@@ -259,7 +259,7 @@ public class OrderServiceImpl implements OrderService {
         if (format.equals(0)) {
             throw new RuntimeException("生成订单出现错误");
         }
-        String url = "http://127.0.0.1:10086/qrcode?totalAmount=" + format + "&subject=校园快药收款平台&storeId=123456&timeoutExpress=15m&outTradeNo=" + orderId;
+        String url = "http://pay.xiaoyang666.top/qrcode?totalAmount=" + format + "&subject=校园快药收款平台&storeId=123456&timeoutExpress=15m&outTradeNo=" + orderId;
 
         Request request = new Request.Builder()
                 .url(url)

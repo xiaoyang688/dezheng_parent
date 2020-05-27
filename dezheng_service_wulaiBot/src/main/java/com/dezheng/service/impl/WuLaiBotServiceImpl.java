@@ -32,12 +32,19 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
     private RabbitTemplate rabbitTemplate;
 
     private OkHttpClient okHttpClient = new OkHttpClient();
-    /**
-     * 吾来机器人api
-     */
     private static final MediaType MEDIA_TYPE = MediaType.get("application/json; charset=utf-8");
-    private static String pubkey = "gMx00Efda4GcOobi1oMTC3CgIbTWu0KZ00a127184eb2f8aae6";
-    private static String secret = "E6iKKOMbP0iBTbLrYIYu";
+    /**
+     * 吾来医生机器人api
+     */
+    private static String KEY_DOCTOR = "gMx00Efda4GcOobi1oMTC3CgIbTWu0KZ00a127184eb2f8aae6";
+    private static String SECRET_DOCTOR = "E6iKKOMbP0iBTbLrYIYu";
+
+    /**
+     * 吾来客服机器人api
+     */
+    private static String KEY_CUSTOMER = "dvz42E03KuRwGAE2Y34zwluaI3JMCfW300455dbf6cd9bdbf9e";
+    private static String SECRET_CUSTOMER = "ex5gJruy3wj6RdzJMhas";
+
     private static MessageDigest md;
 
     /**
@@ -68,32 +75,19 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
         //设置头像
         userDTO.setAvatar_url((String) userInfo.get("haedPic"));
         String json = JSON.toJSONString(userDTO);
-        getResponse(json, WuLaiTypeEnum.CREATE_USER.getUrl());
+        getResponse(json, WuLaiTypeEnum.CREATE_USER.getUrl(), "doctor");
     }
 
     @Override
-    public String getAnswer(String username, String question) {
+    public String getAnswer(String username, String question, String type) {
         String json = getReqJson(username, question);
         System.out.println(json);
-        String response = getResponse(json, WuLaiTypeEnum.GET_ANSWER.getUrl());
-        JSONObject respJson = JSONObject.parseObject(response);
-        JSONArray suggested_response = (JSONArray) respJson.get("suggested_response");
-        if (suggested_response == null) {
-            return null;
-        }
-        respJson = (JSONObject) suggested_response.get(0);
-        JSONArray respArr = (JSONArray) respJson.get("response");
-        if (respArr.size() == 0) {
-            return null;
-        }
-
-        JSONObject msgBodyJson = (JSONObject) respArr.get(0);
-        JSONObject msgBody = (JSONObject) msgBodyJson.get("msg_body");
-        JSONObject textJson = (JSONObject) msgBody.get("text");
-        String content = (String) textJson.get("content");
-        System.out.println(content);
-        return content;
+        String response = getResponse(json, WuLaiTypeEnum.GET_ANSWER.getUrl(), type);
+        String text = getText(response);
+        System.out.println(text);
+        return text;
     }
+
 
     @Override
     public void sendMessage(Map message) {
@@ -116,7 +110,7 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
     @Override
     public void receiveMessage(String username, String question) {
         String json = getReqJson(username, question);
-        String response = getResponse(json, WuLaiTypeEnum.RECEIVE_MESSAGE.getUrl());
+        String response = getResponse(json, WuLaiTypeEnum.RECEIVE_MESSAGE.getUrl(),"doctor");
         System.out.println(response);
     }
 
@@ -136,18 +130,33 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
         return JSON.toJSONString(answerDTO);
     }
 
-    private String getResponse(String json, String url) {
+    private String getResponse(String json, String url, String type) {
+
         RequestBody body = RequestBody.create(json, MEDIA_TYPE);
         Long timeStamp = System.currentTimeMillis() / 1000;
-        String nonce = UUID.randomUUID().toString().replace("-", "");
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Api-Auth-pubkey", pubkey)
-                .addHeader("Api-Auth-nonce", nonce)
-                .addHeader("Api-Auth-timestamp", String.valueOf(timeStamp))
-                .addHeader("Api-Auth-sign", DigestUtils.sha1Hex(nonce + timeStamp + secret))
-                .post(body)
-                .build();
+        Request request = null;
+        if ("doctor".equals(type)) {
+            String nonce = UUID.randomUUID().toString().replace("-", "");
+            request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Api-Auth-pubkey", KEY_DOCTOR)
+                    .addHeader("Api-Auth-nonce", nonce)
+                    .addHeader("Api-Auth-timestamp", String.valueOf(timeStamp))
+                    .addHeader("Api-Auth-sign", DigestUtils.sha1Hex(nonce + timeStamp + SECRET_DOCTOR))
+                    .post(body)
+                    .build();
+        } else if ("customer".equals(type)) {
+            String nonce = UUID.randomUUID().toString().replace("-", "");
+            request = new Request.Builder()
+                    .url(url)
+                    .addHeader("Api-Auth-pubkey", KEY_CUSTOMER)
+                    .addHeader("Api-Auth-nonce", nonce)
+                    .addHeader("Api-Auth-timestamp", String.valueOf(timeStamp))
+                    .addHeader("Api-Auth-sign", DigestUtils.sha1Hex(nonce + timeStamp + SECRET_CUSTOMER))
+                    .post(body)
+                    .build();
+        }
+
         Response response = null;
         try {
             response = okHttpClient.newCall(request).execute();
@@ -165,4 +174,31 @@ public class WuLaiBotServiceImpl implements WuLaiBotService {
         org.json.JSONArray result = (org.json.JSONArray) asrRes2.get("result");
         return (String) result.get(0);
     }
+
+    /**
+     * 清洗答案
+     *
+     * @param response
+     * @return
+     */
+    private String getText(String response) {
+        JSONObject respJson = JSONObject.parseObject(response);
+        JSONArray suggested_response = (JSONArray) respJson.get("suggested_response");
+        if (suggested_response == null) {
+            return null;
+        }
+        respJson = (JSONObject) suggested_response.get(0);
+        JSONArray respArr = (JSONArray) respJson.get("response");
+        if (respArr.size() == 0) {
+            return null;
+        }
+
+        JSONObject msgBodyJson = (JSONObject) respArr.get(0);
+        JSONObject msgBody = (JSONObject) msgBodyJson.get("msg_body");
+        JSONObject textJson = (JSONObject) msgBody.get("text");
+        String content = (String) textJson.get("content");
+        System.out.println(content);
+        return content;
+    }
+
 }
