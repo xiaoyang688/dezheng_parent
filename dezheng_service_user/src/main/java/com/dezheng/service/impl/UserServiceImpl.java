@@ -231,16 +231,15 @@ public class UserServiceImpl implements UserService {
     public List<String> getHeadPicList() {
 
         List<String> headPicList = new ArrayList<>();
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic1.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic2.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic3.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic4.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic5.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic6.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic7.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic8.jpg");
-        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/headpic9.jpg");
-
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic1.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic2.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic3.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic4.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic5.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic6.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic7.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic8.png");
+        headPicList.add("https://xiaoyang688.oss-cn-beijing.aliyuncs.com/headPic/pic9.png");
         return headPicList;
     }
 
@@ -311,13 +310,14 @@ public class UserServiceImpl implements UserService {
 
         //校验是否信息采集过期
         if (searchCollectInfo != null) {
-            long currentTime = new Date().getTime();
-            if (currentTime > searchCollectInfo.getExpireTime().getTime()) { //信息采集过期,重新采集
+            long currentTime = System.currentTimeMillis();
+            //信息采集过期,重新采集
+            if (currentTime > searchCollectInfo.getExpireTime().getTime()) {
                 //重新获取起始时间
                 searchCollectInfo.setStartTime(new Date());
                 //重新获取过期时间
                 Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.MINUTE, 1);
+                calendar.add(Calendar.DATE, 7);
                 searchCollectInfo.setExpireTime(calendar.getTime());
                 //设置状态为0
                 searchCollectInfo.setStatus("0");

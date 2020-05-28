@@ -85,7 +85,7 @@ public interface UserService {
     /**
      * 用户提建议
      *
-     * @param suggest
+     * @param suggestMap
      */
     public void suggest(Map<String, Object> suggestMap);
 
